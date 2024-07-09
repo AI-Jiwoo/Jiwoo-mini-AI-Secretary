@@ -1,0 +1,8 @@
+# 웹 프레임워크
+Flask==2.3.2
+
+# 데이터베이스 ORM
+SQLAlchemy==2.0.15
+
+# 데이터베이스 드라이버
+mysqlclient==2.1.1  # MariaDB와 MySQL용 드라이버
