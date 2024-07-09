@@ -1,1 +1,3 @@
-print("Hi, Jiwoo!")
+# ex.py
+def greet():
+    print("Hi, Jiwoo!")
