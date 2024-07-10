@@ -9,6 +9,12 @@
     text-align: center;
 }
 
+.landing-user {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
 .landing-logo {
     width: 50vw;
     height: auto;
