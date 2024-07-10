@@ -5,6 +5,7 @@ import { Button } from '@chakra-ui/react';
 import logo from '../logo/jiwooLanding.png';
 import '../LandingPage.css'; // CSS 파일 import
 
+
 const LandingPage = () => {
     const navigate = useNavigate();
 
@@ -38,3 +39,5 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+       
