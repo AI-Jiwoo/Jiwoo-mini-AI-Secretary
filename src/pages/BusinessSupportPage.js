@@ -1,5 +1,14 @@
-import React from 'react';
-import { Box, Container, Flex, Text, Table, Thead, Tbody, Tr, Th, Td, Tabs, TabList, TabPanels, Tab, TabPanel, VStack, HStack, Badge } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Container, Flex, Text, Table, Thead, Tbody, Tr, Th, Td, Tabs, TabList, TabPanels, Tab, TabPanel, VStack, HStack, Badge, Input } from '@chakra-ui/react';
+
+// 오늘 날짜를 'YYYY-MM-DD' 형식의 문자열로 반환하는 함수
+const getTodayString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 const NewsContent = ({ title, content }) => (
     <Box
@@ -40,6 +49,12 @@ const ResultTable = ({ data }) => (
 );
 
 const BusinessSupportPage = () => {
+    const [startDate, setStartDate] = useState(getTodayString());
+    const [endDate, setEndDate] = useState(getTodayString());
+
+    const handleStartDateChange = (e) => setStartDate(e.target.value);
+    const handleEndDateChange = (e) => setEndDate(e.target.value);
+
     const positiveData = [
         { policy: "동물 어쩌구 법", result: "긍정", count: 506 },
         { policy: "식품 법", result: "긍정", count: 500 },
@@ -60,6 +75,20 @@ const BusinessSupportPage = () => {
     return (
         <Box bg="gray.100" minHeight="100vh">
             <Container maxW="container.xl" py={6}>
+                <HStack spacing="4" mb="6">
+                    <Input
+                        type="date"
+                        value={startDate}
+                        onChange={handleStartDateChange}
+                        max={endDate}
+                    />
+                    <Input
+                        type="date"
+                        value={endDate}
+                        onChange={handleEndDateChange}
+                        min={startDate}
+                    />
+                </HStack>
 
                 <Flex gap={6}>
                     {/* 왼쪽: 미디어 데이터 */}

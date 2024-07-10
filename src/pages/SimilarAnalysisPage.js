@@ -13,10 +13,10 @@ const getTodayString = () => {
 const CompanyResultItem = ({ company }) => (
     <Box
         p="4"
-        bg="gray.100"
+        bg="white"
         borderRadius="md"
         transition="all 0.2s"
-        _hover={{ bg: "blue.100", transform: "scale(1.02)" }}
+        _hover={{ bg: "blue.50", boxShadow: "md" }}
         cursor="pointer"
     >
         <Text fontWeight="bold">기업명: {company.name}</Text>
@@ -40,42 +40,46 @@ const SimilarServicePage = () => {
     ];
 
     return (
-        <Container maxW="container.xl" p="4">
-            <HStack spacing="4" mb="6">
-                <Input
-                    type="date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    max={endDate}
-                />
-                <Input
-                    type="date"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    min={startDate}
-                />
-            </HStack>
+        <Box bg="gray.100" minHeight="100vh">
+            <Container maxW="container.xl" py={6}>
+                <HStack spacing="4" mb="6">
+                    <Input
+                        type="date"
+                        value={startDate}
+                        onChange={handleStartDateChange}
+                        max={endDate}
+                        bg="white"
+                    />
+                    <Input
+                        type="date"
+                        value={endDate}
+                        onChange={handleEndDateChange}
+                        min={startDate}
+                        bg="white"
+                    />
+                </HStack>
 
-            <Flex>
-                <Box width="40%" mr="6" border="1px solid #ddd" borderRadius="md" p="4">
-                    <Text fontSize="xl" fontWeight="bold" mb="4">기업 검색 결과</Text>
-                    <VStack spacing="4" align="stretch">
-                        {companies.map((company, index) => (
-                            <CompanyResultItem key={index} company={company} />
+                <Flex gap={6}>
+                    <Box width="40%" bg="white" borderRadius="lg" p={6} boxShadow="md">
+                        <Text fontSize="xl" fontWeight="bold" mb="4">기업 검색 결과</Text>
+                        <VStack spacing="4" align="stretch">
+                            {companies.map((company, index) => (
+                                <CompanyResultItem key={index} company={company} />
+                            ))}
+                        </VStack>
+                    </Box>
+
+                    <VStack width="60%" spacing="6" align="stretch">
+                        {['장점', '약점', '개선점'].map((item, index) => (
+                            <Box key={index} p={6} bg="white" borderRadius="lg" boxShadow="md">
+                                <Text fontSize="xl" fontWeight="bold" mb="2">[기업이름]의 {item}</Text>
+                                <Text color="gray.500">기업이 선택되지 않았어요</Text>
+                            </Box>
                         ))}
                     </VStack>
-                </Box>
-
-                <VStack width="60%" spacing="6" align="stretch">
-                    {['장점', '약점', '개선점'].map((item, index) => (
-                        <Box key={index} p="4" border="1px solid #ddd" borderRadius="md">
-                            <Text fontSize="xl" fontWeight="bold" mb="2">[기업이름]의 {item}</Text>
-                            <Text color="gray.500">기업이 선택되지 않았어요</Text>
-                        </Box>
-                    ))}
-                </VStack>
-            </Flex>
-        </Container>
+                </Flex>
+            </Container>
+        </Box>
     );
 };
 
