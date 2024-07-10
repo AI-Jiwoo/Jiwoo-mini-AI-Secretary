@@ -1,5 +1,4 @@
-/* LandingPage.css */
-.container {
+.landing-container {
     background-color: #162238;
     height: 100vh;
     display: flex;
@@ -10,36 +9,13 @@
     text-align: center;
 }
 
-.logo {
-    width: 25vw; /* 화면 너비의 25% */
+.landing-logo {
+    width: 50vw;
     height: auto;
-    max-width: 300px; /* 최대 크기 */
-    max-height: 300px; /* 최대 크기 */
 }
 
-.typingEffect {
+.landing-typing-effect {
     font-size: 3vw;
     margin-top: 2vh;
 }
 
-.customButton {
-    padding: 0.5vh 1vw;
-    font-size: 1.5vw;
-    width: 150px;
-    height: 30px;
-}
-
-/* 미디어 쿼리 */
-@media (max-width: 600px) {
-    .logo {
-        width: 50vw; /* 작은 화면에서는 로고 크기를 키움 */
-    }
-    .typingEffect {
-        font-size: 5vw;
-    }
-    .customButton {
-        font-size: 2.5vw;
-        width: 100px;
-        height: 25px;
-    }
-}

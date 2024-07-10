@@ -8,22 +8,34 @@ import LandingPage from "./pages/LandingPage";
 import MarketResearch from "./pages/MarketResearch";
 
 function App() {
-  return (
-    <ChakraProvider>
-      <BrowserRouter>
-        <Header />
-        <Routes>
-          <Route path="SimilarService" element={<SimilarServicePage />} />
-            <Route path="BusinessSupport" element={<BusinessSupportPage/>}/>
-            <Route path="MarketResearch" element={<MarketResearch/>}/>
-        </Routes>
 
-          <Routes>
-              <Route path="JIWOO" element={<LandingPage/>}/>
-          </Routes>
-      </BrowserRouter>
-    </ChakraProvider>
-  );
+    return (
+        <ChakraProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="SimilarService" element={
+                        <>
+                            <Header />
+                            <SimilarServicePage />
+                        </>
+                    } />
+                    <Route path="BusinessSupport" element={
+                        <>
+                            <Header />
+                            <BusinessSupportPage />
+                        </>
+                    } />
+                    <Route path="MarketResearch" element={
+                        <>
+                            <Header />
+                            <MarketResearch />
+                        </>
+                    } />
+                </Routes>
+            </BrowserRouter>
+        </ChakraProvider>
+    );
 }
 
 export default App;
