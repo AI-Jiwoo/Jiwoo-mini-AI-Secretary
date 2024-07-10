@@ -79,14 +79,20 @@ const LandingPage = () => {
                 </AnimatedSection>
 
                 <AnimatedSection delay={200} backgroundColor="#FFFFFF">
-                    <Flex direction="column" align="center" justify="center" minHeight="100vh">
-                        <Text fontSize="4xl" fontWeight="bold" mb={8} color="gray.800">창업을 원한다면</Text>
-                        <Text fontSize="2xl" mb={4} color="gray.700">관련 키워드를 검색해보세요!</Text>
-                        <Text fontSize="xl" color="gray.600">국가가 제공하는 창업을 위한 정보를 손쉽게 알려드립니다</Text>
-                        <Flex mt={8}>
-                            <Button leftIcon={<span>🛒</span>} mr={4}>사업조사</Button>
-                            <Button leftIcon={<span>📊</span>} mr={4}>사업조사</Button>
-                            <Button leftIcon={<span>📈</span>}>시장분석</Button>
+                    <Flex direction="column" align="center" justify="center" minHeight="100vh" p={8}>
+                        <Text fontSize={["3xl", "4xl", "5xl", "6xl"]} fontWeight="bold" mb={10} color="gray.800" textAlign="center">
+                            창업을 원한다면
+                        </Text>
+                        <Text fontSize={["xl", "2xl", "3xl", "4xl"]} mb={6} color="gray.700" textAlign="center">
+                            관련 키워드를 검색해보세요!
+                        </Text>
+                        <Text fontSize={["lg", "xl", "2xl", "3xl"]} color="gray.600" textAlign="center" maxWidth="800px" mb={10}>
+                            국가가 제공하는 창업을 위한 정보를 손쉽게 알려드립니다
+                        </Text>
+                        <Flex mt={10} flexWrap="wrap" justify="center">
+                            <Button leftIcon={<span style={{fontSize: "1.5em"}}>🛒</span>} mr={4} mb={4} size="lg" fontSize="xl" py={6} px={8}>시장분석</Button>
+                            <Button leftIcon={<span style={{fontSize: "1.5em"}}>📊</span>} mr={4} mb={4} size="lg" fontSize="xl" py={6} px={8}>정책 및 지원</Button>
+                            <Button leftIcon={<span style={{fontSize: "1.5em"}}>📈</span>} mb={4} size="lg" fontSize="xl" py={6} px={8}>시장분석</Button>
                         </Flex>
                     </Flex>
                 </AnimatedSection>
