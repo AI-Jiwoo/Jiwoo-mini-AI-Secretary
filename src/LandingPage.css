@@ -1,6 +1,5 @@
 .landing-container {
     background-color: #162238;
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,5 +16,26 @@
 .landing-typing-effect {
     font-size: 3vw;
     margin-top: 2vh;
+}
+
+.landing-container {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.animated-section {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.landing-logo {
+    height: auto;
+}
+
+.landing-typing-effect {
+    font-size: 3vw;
+    margin-top: 2vh;
+    color: white;
 }
 
