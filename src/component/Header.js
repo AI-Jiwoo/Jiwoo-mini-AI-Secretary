@@ -13,7 +13,14 @@ import {
 import { Search2Icon, LockIcon, EditIcon } from '@chakra-ui/icons';
 import logo from '../logo/JiwooLogo.png';
 
+
+
+
+
 const Header = () => {
+    const handleLogoClick = () => {
+        navigate('/'); // 랜딩 페이지의 경로를 '/'로 가정
+    };
     const navigate = useNavigate();
     const options = [
         { value: "", label: "선택" },
@@ -43,6 +50,8 @@ const Header = () => {
             color="white"
             p="2"
             alignItems="center"
+            onClick={handleLogoClick}
+            _hover={{ opacity: 0.8 }}
             justifyContent="space-between"
         >
             {/* 로고와 검색창 - 왼쪽에 배치 */}
