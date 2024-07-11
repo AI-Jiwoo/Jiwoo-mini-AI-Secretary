@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ko } from 'date-fns/locale';
 import {
     Box,
+    Checkbox,
     Flex,
     Input,
     Select,
@@ -30,9 +31,14 @@ const steps = [
 const BusinessInfoForm = () => {
     const [activeStep, setActiveStep] = useState(0);
     const [startDate, setStartDate] = useState(new Date());
+    const [isPrivacyPolicyChecked, setIsPrivacyPolicyChecked] = useState(false);
 
     const nextStep = () => setActiveStep(prev => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => setActiveStep(prev => Math.max(prev - 1, 0));
+
+    const handlePrivacyPolicyChange = (e) => {
+        setIsPrivacyPolicyChecked(e.target.checked);
+    };
 
     const renderStepContent = (step) => {
         switch (step) {
@@ -87,6 +93,18 @@ const BusinessInfoForm = () => {
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">주요 제품/서비스(Main Products/Services)</Text>
                             <Input placeholder="주요 제품/서비스를 입력하세요" bg="white" color="black" />
                         </Box>
+                        {activeStep === steps.length - 1 && (
+                            <Box>
+                                <Checkbox
+                                    isChecked={isPrivacyPolicyChecked}
+                                    onChange={handlePrivacyPolicyChange}
+                                    colorScheme="blue"
+                                    color="black"
+                                >
+                                    개인정보 수집에 동의합니다.
+                                </Checkbox>
+                            </Box>
+                        )}
                     </>
                 );
             default:
@@ -133,7 +151,12 @@ const BusinessInfoForm = () => {
                                 {activeStep > 0 && (
                                     <Button colorScheme="blue" size="sm" mr={2} onClick={prevStep}>이전</Button>
                                 )}
-                                <Button colorScheme="blue" size="sm" onClick={nextStep}>
+                                <Button
+                                    colorScheme="blue"
+                                    size="sm"
+                                    onClick={nextStep}
+                                    isDisabled={activeStep === steps.length - 1 && !isPrivacyPolicyChecked}
+                                >
                                     {activeStep === steps.length - 1 ? '완료' : '다음'}
                                 </Button>
                             </Flex>

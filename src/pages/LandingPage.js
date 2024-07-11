@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactTypingEffect from 'react-typing-effect';
-import { Button, ChakraProvider, Flex, Box, Text, VStack, Image } from '@chakra-ui/react';
+import { Button, ChakraProvider, Flex, Box, Text, Image } from '@chakra-ui/react';
 import logo from '../logo/jiwooLanding.png';
 import backgroundVideo from '../video/1118545_4k_Form_1280x720.mp4';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
