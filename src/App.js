@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import SimilarServicePage from './pages/SimilarAnalysisPage';
 import Header from '../src/component/Header';
-import BusinessSupportPage from "./pages/BusinessSupportPage";
 import LandingPage from "./pages/LandingPage";
+import BusinessSupportPage from "./pages/BusinessSupportPage";
 import MarketResearch from "./pages/MarketResearch";
 
 function App() {
