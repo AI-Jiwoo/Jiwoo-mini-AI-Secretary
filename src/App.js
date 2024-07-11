@@ -8,6 +8,7 @@ import LandingPage from "./pages/LandingPage";
 import MarketResearch from "./pages/MarketResearch";
 
 function App() {
+
     return (
         <ChakraProvider>
             <BrowserRouter>

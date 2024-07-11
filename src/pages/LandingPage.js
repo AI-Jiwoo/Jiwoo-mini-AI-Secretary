@@ -34,6 +34,7 @@ const AnimatedSection = ({ children, delay = 0, backgroundColor = 'transparent' 
     );
 };
 
+
 const LandingPage = () => {
     const navigate = useNavigate();
 
@@ -131,3 +132,5 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+       
