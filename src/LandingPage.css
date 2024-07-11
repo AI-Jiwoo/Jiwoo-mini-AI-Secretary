@@ -39,3 +39,17 @@
     color: white;
 }
 
+
+.date-picker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker__input-container {
+    width: 100%;
+    color: black;
+}
+

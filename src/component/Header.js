@@ -1,23 +1,75 @@
-// Header.jsx
-
 import React, { useState } from 'react';
-import { Button, Flex, Image, Input, InputGroup, InputRightElement, Select, Text } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import {
+    Button,
+    Flex,
+    Image,
+    Input,
+    InputGroup,
+    InputRightElement,
+    Select,
+    Text,
+    Box
+} from '@chakra-ui/react';
 import { Search2Icon, LockIcon, EditIcon } from '@chakra-ui/icons';
 import logo from '../logo/JiwooLogo.png';
 
 const Header = () => {
-    const options = ["선택", "유사서비스", "정책", "시장조사"];
+    const navigate = useNavigate();
+    const options = [
+        { value: "", label: "선택" },
+        { value: "SimilarService", label: "유사서비스" },
+        { value: "BusinessSupport", label: "정책" },
+        { value: "MarketResearch", label: "시장조사" }
+    ];
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedOption, setSelectedOption] = useState(options[0]);
+    const [selectedOption, setSelectedOption] = useState(options[0].value);
+
+    const handleLogoClick = () => {
+        navigate('/');
+    };
+
+    const handleSearch = () => {
+        if (selectedOption && searchTerm) {
+            navigate(`/${selectedOption}?query=${encodeURIComponent(searchTerm)}`);
+        }
+    };
+
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            handleSearch();
+        }
+    };
 
     return (
-        <Flex as="header" bg="blue.800" color="white" p="2" alignItems="center" justifyContent="space-between">
+        <Flex
+            as="header"
+            bg="blue.800"
+            color="white"
+            p="2"
+            alignItems="center"
+            justifyContent="space-between"
+        >
             {/* 로고와 검색창 - 왼쪽에 배치 */}
             <Flex align="center">
-                <Image src={logo} alt="JIWOO Logo" boxSize="30px" mr="2" />
-                <Text fontSize="xl" fontWeight="bold" mr="4">JIWOO</Text>
-
-                <Flex bg="white" borderRadius="md" overflow="hidden" maxWidth="450px" width="100%">
+                <Flex
+                    onClick={handleLogoClick}
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                    alignItems="center"
+                    mr="30px"
+                >
+                    <Image src={logo} alt="JIWOO Logo" boxSize="30px" mr="2" />
+                    <Text fontSize="xl" fontWeight="bold">JIWOO</Text>
+                </Flex>
+                <Flex
+                    bg="white"
+                    borderRadius="md"
+                    overflow="hidden"
+                    maxWidth="450px"
+                    width="100%"
+                    onClick={(e) => e.stopPropagation()}  // 이벤트 전파 방지
+                >
                     <Select
                         value={selectedOption}
                         onChange={(e) => setSelectedOption(e.target.value)}
@@ -29,7 +81,9 @@ const Header = () => {
                         _focus={{ boxShadow: 'none' }}
                     >
                         {options.map((option) => (
-                            <option key={option} value={option}>{option}</option>
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
                         ))}
                     </Select>
                     <InputGroup size="md" flex={1}>
@@ -37,12 +91,18 @@ const Header = () => {
                             placeholder="검색"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyPress={handleKeyPress}
                             color="black"
                             border="none"
                             _focus={{ boxShadow: 'none' }}
                         />
                         <InputRightElement>
-                            <Search2Icon color="gray.500" />
+                            <Search2Icon
+                                color="gray.500"
+                                cursor="pointer"
+                                onClick={handleSearch}
+                                _hover={{ color: "blue.500" }}
+                            />
                         </InputRightElement>
                     </InputGroup>
                 </Flex>
@@ -53,11 +113,20 @@ const Header = () => {
                 <Button colorScheme="teal" size="sm" mr="4">
                     플랜추가
                 </Button>
-                <Flex mr="4" align="center" cursor="pointer" _hover={{ color: 'teal.200' }}>
+                <Flex
+                    mr="4"
+                    align="center"
+                    cursor="pointer"
+                    _hover={{ color: 'teal.200' }}
+                >
                     <LockIcon mr="1" />
                     <Text>로그인</Text>
                 </Flex>
-                <Flex align="center" cursor="pointer" _hover={{ color: 'teal.200' }}>
+                <Flex
+                    align="center"
+                    cursor="pointer"
+                    _hover={{ color: 'teal.200' }}
+                >
                     <EditIcon mr="1" />
                     <Text>회원가입</Text>
                 </Flex>

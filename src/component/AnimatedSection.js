@@ -16,9 +16,11 @@ const AnimatedSection = ({ children, delay = 0, backgroundColor = 'transparent' 
             className={`animated-section ${isVisible ? 'visible' : ''}`}
             style={{
                 transitionDelay: `${delay}ms`,
+                backgroundColor: isVisible ? backgroundColor : 'transparent',
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                transition: 'opacity 0.6s ease-out, transform 0.6s ease-out, background-color 0.6s ease-out'
             }}
-            backgroundColor={isVisible ? backgroundColor : 'transparent'}
-            transition="opacity 0.6s ease-out, transform 0.6s ease-out, background-color 0.6s ease-out"
             width="100%"
             minHeight="100vh"
         >
