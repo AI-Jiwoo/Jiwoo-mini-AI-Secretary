@@ -8,19 +8,13 @@ import {
     InputGroup,
     InputRightElement,
     Select,
-    Text
+    Text,
+    Box
 } from '@chakra-ui/react';
 import { Search2Icon, LockIcon, EditIcon } from '@chakra-ui/icons';
 import logo from '../logo/JiwooLogo.png';
 
-
-
-
-
 const Header = () => {
-    const handleLogoClick = () => {
-        navigate('/'); // 랜딩 페이지의 경로를 '/'로 가정
-    };
     const navigate = useNavigate();
     const options = [
         { value: "", label: "선택" },
@@ -30,6 +24,10 @@ const Header = () => {
     ];
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOption, setSelectedOption] = useState(options[0].value);
+
+    const handleLogoClick = () => {
+        navigate('/');
+    };
 
     const handleSearch = () => {
         if (selectedOption && searchTerm) {
@@ -50,21 +48,27 @@ const Header = () => {
             color="white"
             p="2"
             alignItems="center"
-            onClick={handleLogoClick}
-            _hover={{ opacity: 0.8 }}
             justifyContent="space-between"
         >
             {/* 로고와 검색창 - 왼쪽에 배치 */}
             <Flex align="center">
-                <Image src={logo} alt="JIWOO Logo" boxSize="30px" mr="2" />
-                <Text fontSize="xl" fontWeight="bold" mr="4">JIWOO</Text>
-
+                <Flex
+                    onClick={handleLogoClick}
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                    alignItems="center"
+                    mr="30px"
+                >
+                    <Image src={logo} alt="JIWOO Logo" boxSize="30px" mr="2" />
+                    <Text fontSize="xl" fontWeight="bold">JIWOO</Text>
+                </Flex>
                 <Flex
                     bg="white"
                     borderRadius="md"
                     overflow="hidden"
                     maxWidth="450px"
                     width="100%"
+                    onClick={(e) => e.stopPropagation()}  // 이벤트 전파 방지
                 >
                     <Select
                         value={selectedOption}
