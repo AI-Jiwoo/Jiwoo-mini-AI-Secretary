@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ReactTypingEffect from 'react-typing-effect';
 import { Button, ChakraProvider, Flex, Box, Text, VStack, Image } from '@chakra-ui/react';
 import logo from '../logo/jiwooLanding.png';
+import backgroundVideo from '../video/1118545_4k_Form_1280x720.mp4';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
 import '../LandingPage.css';
 import {EditIcon, LockIcon} from "@chakra-ui/icons";
@@ -10,7 +11,7 @@ import {EditIcon, LockIcon} from "@chakra-ui/icons";
 const AnimatedSection = ({ children, delay = 0, backgroundColor = 'transparent' }) => {
     const ref = useRef(null);
     const entry = useIntersectionObserver(ref, {
-        threshold: 0.5,  // 화면의 50%가 보일 때 활성화
+        threshold: 0.5,
         rootMargin: '0px'
     });
     const isVisible = !!entry?.isIntersecting;
@@ -41,13 +42,13 @@ const LandingPage = () => {
 
     return (
         <ChakraProvider>
-            <Box position="relative" className="landing-container" backgroundColor="#162238">
+            <Box position="relative" className="landing-container">
                 <Flex
                     className="user"
                     position="absolute"
                     top="4"
                     right="4"
-                    zIndex="1"
+                    zIndex="2"
                 >
                     <Flex mr="4" align="center" cursor="pointer" _hover={{ color: 'teal.200' }}>
                         <LockIcon mr="1" />
@@ -58,24 +59,45 @@ const LandingPage = () => {
                         <Text color="white">회원가입</Text>
                     </Flex>
                 </Flex>
-                <AnimatedSection backgroundColor="#162238">
-                    <Flex direction="column" align="center" justify="center" minHeight="100vh">
-                        <Image src={logo} alt="JIWOO logo" className="landing-logo" width="60vw" maxWidth="600px" />
-                        <ReactTypingEffect
-                            text={['지혜로운 도우미 JIWOO를 경험해보세요!']}
-                            speed={100}
-                            eraseDelay={1000000}
-                            className="landing-typing-effect"
-                        />
-                        <Button
-                            colorScheme="teal"
-                            size="lg"
-                            mt={4}
-                            onClick={handleGetStartedClick}
+
+                <AnimatedSection backgroundColor="rgba(22, 34, 56, 0.5)">
+                    <Box position="relative" width="100%" height="100vh">
+                        <Box
+                            as="video"
+                            autoPlay
+                            loop
+                            muted
+                            position="absolute"
+                            top="0"
+                            left="0"
+                            width="100%"
+                            height="100%"
+                            objectFit="cover"
+                            zIndex="0"
                         >
-                            로그인 바로가기
-                        </Button>
-                    </Flex>
+                            <source src={backgroundVideo} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </Box>
+                        <Flex direction="column" align="center" justify="center" height="100%" position="relative" zIndex="1">
+                            <Image src={logo} alt="JIWOO logo" className="landing-logo" width="90vw" maxWidth="900px" />
+                            <Box mt="-20px">
+                            <ReactTypingEffect
+                                text={['지혜로운 도우미 JIWOO를 경험해보세요!']}
+                                speed={100}
+                                eraseDelay={1000000}
+                                className="landing-typing-effect"
+                            />
+                            </Box>
+                            <Button
+                                colorScheme="teal"
+                                size="lg"
+                                mt={4}
+                                onClick={handleGetStartedClick}
+                            >
+                                로그인 바로가기
+                            </Button>
+                        </Flex>
+                    </Box>
                 </AnimatedSection>
 
                 <AnimatedSection delay={200} backgroundColor="#FFFFFF">
