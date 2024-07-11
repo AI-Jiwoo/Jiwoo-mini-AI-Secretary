@@ -13,7 +13,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
 
-def get_investment_totals(business_type):
+def get_investment_totals(business_type, start_year, end_year):
     try:
         # MySQL 데이터베이스 연결
         connection = mysql.connector.connect(
@@ -27,25 +27,20 @@ def get_investment_totals(business_type):
         if connection.is_connected():
             cursor = connection.cursor()
 
-            # 2023년도 투자금 총액 쿼리
-            total_query = """
-            SELECT SUM(investment_amount)
+            # 년도별 전체 투자금과 특정 분야 투자금 쿼리
+            query = """
+            SELECT YEAR(investment_date) AS year,
+                   SUM(investment_amount) AS total_investment,
+                   SUM(CASE WHEN business_type = %s THEN investment_amount ELSE 0 END) AS specific_investment
             FROM jiwoo.tbl_status_investment_company
-            WHERE YEAR(investment_date) = 2023;
+            WHERE YEAR(investment_date) BETWEEN %s AND %s
+            GROUP BY YEAR(investment_date)
+            ORDER BY YEAR(investment_date);
             """
-            cursor.execute(total_query)
-            total_investment = cursor.fetchone()[0]
+            cursor.execute(query, (business_type, start_year, end_year))
+            results = cursor.fetchall()
 
-            # 특정 business_type의 2023년도 투자금 쿼리
-            specific_query = """
-            SELECT SUM(investment_amount)
-            FROM jiwoo.tbl_status_investment_company
-            WHERE YEAR(investment_date) = 2023 AND business_type = %s;
-            """
-            cursor.execute(specific_query, (business_type,))
-            specific_investment = cursor.fetchone()[0]
-
-            return total_investment, specific_investment
+            return results
 
     except Error as e:
         print(f"Error: {e}")
@@ -56,6 +51,32 @@ def get_investment_totals(business_type):
 
 # 예시 사용
 business_type = "IT"
-total, specific = get_investment_totals(business_type)
-print(f"2023년 전체 투자금: {total}")
-print(f"{business_type}의 2023년 투자금: {specific}")
+start_year = 2019
+end_year = 2023
+results = get_investment_totals(business_type, start_year, end_year)
+
+# 결과를 저장할 리스트
+investment_data = []
+
+# 결과 출력
+for result in results:
+    year, total_investment, specific_investment = result
+    if total_investment > 0:
+        percentage = (specific_investment / total_investment) * 100
+    else:
+        percentage = 0
+
+    # 결과를 리스트에 저장
+    investment_data.append({
+        'year': year,
+        'total_investment': total_investment,
+        'specific_investment': specific_investment,
+        'percentage': percentage
+    })
+
+# 저장된 결과 출력
+for data in investment_data:
+    print(f"{data['year']}년 전체 투자금: {data['total_investment']}")
+    print(f"{data['year']}년 {business_type}의 투자금: {data['specific_investment']}")
+    print(f"{data['year']}년 {business_type}의 투자금 비율: {data['percentage']:.2f}%")
+    print()  # 줄바꿈
