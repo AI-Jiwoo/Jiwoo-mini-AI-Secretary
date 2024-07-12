@@ -157,6 +157,7 @@ const BusinessSupportPage = () => {
                                                         <Td>{policy.similarity.toFixed(2)}%</Td>
                                                     </Tr>
                                                 ))}
+
                                             </Tbody>
                                         </Table>
                                     </Box>
