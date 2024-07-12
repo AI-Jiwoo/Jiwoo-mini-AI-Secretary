@@ -4,6 +4,6 @@ mysqlclient==2.1.1  # MariaDB와 MySQL용 드라이버
 streamlit==1.0.0  # Streamlit 웹 애플리케이션 구현에 필요
 feedparser==6.0.8  # RSS 피드 파싱을 위한 라이브러리
 newspaper3k==0.2.8  # 웹 기사 스크랩 및 요약을 위한 라이브러리
-langchain-openai==1.0.0  # OpenAI GPT 모델을 통한 자연어 생성을 위한 라이브러리
+langchain-openai==0.1.15  # OpenAI GPT 모델을 통한 자연어 생성을 위한 라이브러리
 python-dotenv==0.19.1  # 환경 변수 관리를 위한 라이브러리
 transformers==4.13.2  # Hugging Face Transformers 라이브러리
