@@ -1,12 +1,22 @@
 import feedparser
 from newspaper import Article
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
+from langchain_openai import ChatOpenAI  # langchain-openai 패키지 사용
+from dotenv import load_dotenv  # python-dotenv 라이브러리에서 load_dotenv 함수 import
+import os
+from datetime import datetime
 
-def scrape_news(keyword):
+# .env 파일 로드
+load_dotenv()
+
+def scrape_news(keyword, start_date, end_date):
+    # 시작 날짜와 끝 날짜로부터 기간을 계산하여 날짜 형식으로 변환
+    start_datetime = datetime.strptime(start_date, '%Y-%m-%d')
+    end_datetime = datetime.strptime(end_date, '%Y-%m-%d')
+
     # RSS 피드 URL 설정
-    rss_url = f'https://news.google.com/rss/search?q={keyword}&hl=ko&gl=KR&ceid=KR:ko'
-    
+    rss_url = f'https://news.google.com/rss/search?q={keyword}&hl=ko&gl=KR&ceid=KR:ko&hl=ko&gl=KR&ceid=KR:ko' \
+              f'&startdate={start_datetime.strftime("%Y-%m-%d")}&enddate={end_datetime.strftime("%Y-%m-%d")}'
+
     # RSS 피드 파싱
     feed = feedparser.parse(rss_url)
     
@@ -19,85 +29,101 @@ def scrape_news(keyword):
         article.download()
         article.parse()
         articles.append({
+            'title': article.title,
             'text': article.text,
             'url': article_url
         })
     
     return articles
 
-def analyze_sentiment_korean(text):
-    # Hugging Face의 사전 학습된 감정 분석 모델 불러오기
-    model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
-
-    # 텍스트를 토크나이즈
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-
-    # 모델을 통해 감정 분석 수행
-    with torch.no_grad():
-        outputs = model(**inputs)
+def generate_summary(article_text):
+    prompt = f"다음 기사의 핵심내용을 요약해 주세요:\n\n{article_text}"
     
-    # 출력 로짓을 소프트맥스로 변환하여 확률로 계산
-    probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
-    sentiment_score = torch.argmax(probabilities, dim=1).item()
+    # OpenAI GPT 모델 초기화
+    gpt_model = ChatOpenAI(openai_api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
+    
+    # GPT 모델을 사용하여 요약 생성
+    response = gpt_model.invoke(prompt, max_tokens=200, stop=None)
+    
+    # 요약의 content 부분 추출
+    summary = response.content.strip()
+    
+    return summary
 
-    # 감정 점수 변환 (0: 부정, 2: 중립, 4: 긍정)
-    if sentiment_score <= 1:
-        return '부정'
-    elif sentiment_score == 2:
-        return '중립'
-    else:
-        return '긍정'
-
-def explain_sentiment(text, sentiment):
-    if sentiment == '중립':
-        return "이 기사는 중립적인 감정을 유발하는 내용입니다."
-    else:
-        # 감정을 유발한 텍스트의 일부 추출
-        explanation = f"기사에서 주체에게 {sentiment} 감정을 느끼게 한 부분은 '{text[:100]}' 등의 내용 때문입니다."
-        return explanation
+def generate_reaction(article_summary, subject_info):
+    prompt = f"이제부터 당신은 {subject_info['subject_name']}라는 기업의 CEO입니다. " \
+             f"{subject_info['subject_name']}는 {subject_info['nationality']}의 {subject_info['business_field']} 분야에 속하는 " \
+             f"{subject_info['company_size']} 사업체로, {subject_info['established_year']}년에 설립되었으며, " \
+             f"주요 제품/서비스로는 {subject_info['main_products_services']}를 제공하고 있습니다. " \
+             f"{subject_info['subject_name']}는 {subject_info['market_position']}입니다. " \
+             f"다음 기사에 대한 요약을 부여받은 역할의 관점으로 읽고, 각각의 기사가 사업을 진행하는 것에 있어서 해당분야 전문가로서 유리한지 불리한지 판단을 하고 유리하면 긍정적, 불리하면 부정적으로 표현 해주세요. " \
+             f"그리고 그에 대한 이유와 개선할 내용을 함께 출력해 주세요.\n\n" \
+             f"기사 요약: {article_summary}\n\n" \
+             f"예시)\n\n" \
+             f"반응: 부정적\n\n" \
+             f"이유:  CES 2024의 트렌드는 지속 가능성과 AI 발전을 강조합니다. 이는 지우의 AI 비서 서비스가 최신 기술 트렌드를 반영하고, 지속 가능한 접근을 통해 시장에서의 경쟁력을 강화하는 데 도움이 됩니다. 혁신적인 기술 채택으로 브랜드 이미지를 제고할 수 있습니다.\n\n" \
+             f"개선: CES 2024에서 강조된 지속 가능성과 AI 발전은 지우의 AI 비서 서비스와 밀접한 관련이 있습니다. 지우는 이러한 최신 기술 트렌드를 빠르게 흡수하고 자사의 제품에 적용함으로써 시장에서의 경쟁력을 높일 수 있습니다. 예를 들어, 더욱 정교한 자연어 처리 기술 개발이나 환경 친화적인 AI 알고리즘 구현을 통해 지속 가능한 기술 솔루션을 제공할 수 있습니다.\n\n" \
+             
+    
+    # OpenAI GPT 모델 초기화
+    gpt_model = ChatOpenAI(openai_api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
+    
+    # GPT 모델을 사용하여 반응 생성
+    response = gpt_model.invoke(prompt, max_tokens=700, stop=None)
+    
+    # 반응의 content 부분 추출
+    reaction = response.content.strip()
+    
+    return reaction
 
 if __name__ == '__main__':
-    # 사용자로부터 주체 정보 입력 받기
-    subject_name = input("사업체의 이름을 입력하세요: ")
-    business_field = input("사업 분야를 입력하세요 (예: IT, 의료, 교육): ")
-    nationality = input("국적을 입력하세요: ")
-    company_size = input("기업 규모를 입력하세요 (예: 대기업, 중소기업, 스타트업): ")
-    established_year = input("설립 연도를 입력하세요: ")
-    main_products_services = input("주요 제품/서비스를 입력하세요: ")
-    market_position = input("시장 위치를 입력하세요 (예: 선도 기업, 신생 기업): ")
+    # 고정된 주체 정보
+    subject_info = {
+        'subject_name': "지우",
+        'business_field': "IT",
+        'nationality': "한국",
+        'company_size': "스타트업",
+        'established_year': "2024",
+        'main_products_services': "AI비서",
+        'market_position': "신생기업"
+    }
     
     # 주체 정보 분석
-    print(f"\n분석 대상 주체 정보:")
-    print(f"사업체 이름: {subject_name}")
-    print(f"사업 분야: {business_field}")
-    print(f"국적: {nationality}")
-    print(f"기업 규모: {company_size}")
-    print(f"설립 연도: {established_year}")
-    print(f"주요 제품/서비스: {main_products_services}")
-    print(f"시장 위치: {market_position}\n")
-
-    # 키워드 입력 받기
+    print("\n[분석 대상 주체 정보]")
+    print(f"사업체 이름: {subject_info['subject_name']}")
+    print(f"사업 분야: {subject_info['business_field']}")
+    print(f"국적: {subject_info['nationality']}")
+    print(f"기업 규모: {subject_info['company_size']}")
+    print(f"설립 연도: {subject_info['established_year']}")
+    print(f"주요 제품/서비스: {subject_info['main_products_services']}")
+    print(f"시장 위치: {subject_info['market_position']}\n")
+    
+    # 키워드와 날짜 입력 받기
     user_keyword = input("키워드를 입력하세요: ")
-    news_articles = scrape_news(user_keyword)
+    start_date = input("조회 시작 날짜를 입력하세요 (예: 2023-01-01): ")
+    end_date = input("조회 끝 날짜를 입력하세요 (예: 2023-01-31): ")
+    
+    news_articles = scrape_news(user_keyword, start_date, end_date)
     
     if not news_articles:
-        print(f"'{user_keyword}'에 대한 뉴스를 찾을 수 없습니다.")
+        print(f"'{user_keyword}'에 대한 {start_date}부터 {end_date}까지의 뉴스를 찾을 수 없습니다.")
     else:
         for idx, article in enumerate(news_articles, 1):
+            title = article['title']
             text = article['text']
             url = article['url']
             
-            # 감정 분석
-            sentiment = analyze_sentiment_korean(text)
+            # 기사 요약 생성
+            summary = generate_summary(text)
             
-            # 감정 설명
-            explanation = explain_sentiment(text, sentiment)
+            # 반응 생성
+            reaction = generate_reaction(summary, subject_info)
             
-            # 기사 출력
-            print(f"기사 {idx}:")
-            print(f"감정 분석 결과: {sentiment}")
-            print(f"감정 설명: {explanation}")
+            # 출력
+            print(f"{idx}번째 기사")
+            print(f"제목: {title}")
+            print(f"내용 요약: {summary}")
+            print(f"분석 결과: {reaction}")
             print(f"기사 URL: {url}")
             print()
+
