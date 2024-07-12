@@ -26,29 +26,12 @@ const MarketResearch = () => {
     const [reactions, setReactions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const positiveData = [
-        { policy: "동물 어쩌구 법", result: "긍정", count: 506 },
-        { policy: "식품 법", result: "긍정", count: 500 },
-        { policy: "아동 법", result: "긍정", count: 230 },
-        { policy: "그 밖의 안전4법", result: "긍정", count: 120 },
-    ];
-
-    const negativeData = [
-        { policy: "환경 규제법", result: "부정", count: 300 },
-        { policy: "세금 인상법", result: "부정", count: 250 },
-    ];
-
-    const etcData = [
-        { policy: "기타 정책 1", result: "기타", count: 150 },
-        { policy: "기타 정책 2", result: "기타", count: 100 },
-    ];
-
     useEffect(() => {
         if (businessInfo.business) {
             setKeyword(businessInfo.business);
             fetchNews();
         }
-    }, []);
+    }, [businessInfo]);
 
     const fetchNews = async () => {
         setIsLoading(true);
@@ -60,8 +43,9 @@ const MarketResearch = () => {
                     end_date: endDate
                 }
             });
-            setNewsArticles(response.data);
-            generateReactions(response.data);
+            const articles = response.data;
+            setNewsArticles(articles);
+            await fetchReactions(articles);
         } catch (error) {
             console.error('Error fetching news:', error);
         } finally {
@@ -69,16 +53,32 @@ const MarketResearch = () => {
         }
     };
 
-    const generateReactions = async (articles) => {
-        const reactionsPromises = articles.map(article =>
-            axios.post('http://127.0.0.1:8000/reaction', {
-                article_summary: article.text.substring(0, 200)
-            })
-        );
+    const fetchReactions = async (articles) => {
+        const reactionsPromises = articles.map(article => {
+            const requestBody = {
+                article_summary: article.text.substring(0, 200),
+                subject_name: businessInfo.companyName,
+                business_field: businessInfo.business,
+                nationality: businessInfo.nationality,
+                company_size: businessInfo.companySize,
+                established_year: businessInfo.establishmentYear,
+                main_products_services: businessInfo.products,
+                market_position: businessInfo.marketPosition
+            };
+
+            console.log('Request Body:', requestBody);  // 콘솔에 requestBody 출력
+
+            return axios.post('http://127.0.0.1:8000/reaction', requestBody)
+                .then(response => response.data)
+                .catch(error => {
+                    console.error('Error generating reaction:', error);
+                    return { reaction: 'unknown', summary: 'analysis failed' };
+                });
+        });
 
         try {
-            const reactionsResponses = await Promise.all(reactionsPromises);
-            setReactions(reactionsResponses.map(response => response.data.reaction));
+            const reactionsData = await Promise.all(reactionsPromises);
+            setReactions(reactionsData);
         } catch (error) {
             console.error('Error generating reactions:', error);
         }
@@ -92,23 +92,13 @@ const MarketResearch = () => {
 
     return (
         <PageLayout>
-            <Box mb={6}>
-                <Text fontSize="2xl" fontWeight="bold" mb={4}>사업 정보</Text>
-                <Text>회사명: {businessInfo.companyName}</Text>
-                <Text>국적: {businessInfo.nationality}</Text>
-                <Text>업종: {businessInfo.business}</Text>
-                <Text>설립연도: {formatDate(businessInfo.establishmentYear)}</Text>
-                <Text>기업 규모: {businessInfo.companySize}</Text>
-                <Text>주소: {businessInfo.address}</Text>
-                <Text>주요 제품/서비스: {businessInfo.products}</Text>
-            </Box>
-
             <DateRangePicker
                 startDate={startDate}
                 endDate={endDate}
                 onStartDateChange={(e) => setStartDate(e.target.value)}
                 onEndDateChange={(e) => setEndDate(e.target.value)}
             />
+
             <Input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
@@ -118,6 +108,7 @@ const MarketResearch = () => {
             <Button onClick={fetchNews} isLoading={isLoading} mb={4}>분석 시작</Button>
 
             <Flex gap={6}>
+                {/* 왼쪽: 미디어 데이터 */}
                 <Box width="40%" bg="white" borderRadius="lg" p={6} boxShadow="md">
                     <Text fontSize="xl" fontWeight="bold" mb={4}>[미디어 데이터] 뉴스 및 미디어 데이터 분석 결과</Text>
                     <VStack align="stretch" spacing={4}>
@@ -126,59 +117,45 @@ const MarketResearch = () => {
                                 key={index}
                                 title={article.title}
                                 content={article.text.substring(0, 200) + '...'}
-                                reaction={reactions[index]}
+                                reaction={reactions[index]?.reaction}
+                                summary={reactions[index]?.summary}
                                 url={article.url}
                             />
                         ))}
                     </VStack>
                 </Box>
 
+                {/* 오른쪽: 분석 결과 */}
                 <Box width="60%" bg="white" borderRadius="lg" p={6} boxShadow="md">
                     <Tabs>
                         <TabList mb={4}>
                             <Tab>긍정</Tab>
                             <Tab>부정</Tab>
-                            <Tab>etc</Tab>
+                            <Tab>기타</Tab>
                         </TabList>
 
                         <TabPanels>
                             <TabPanel p={0}>
-                                <ResultTable data={positiveData} />
+                                <ResultTable data={reactions.filter(r => r.reaction === '긍정적')} />
                             </TabPanel>
                             <TabPanel p={0}>
-                                <ResultTable data={negativeData} />
+                                <ResultTable data={reactions.filter(r => r.reaction === '부정적')} />
                             </TabPanel>
                             <TabPanel p={0}>
-                                <ResultTable data={etcData} />
+                                <ResultTable data={reactions.filter(r => !['긍정적', '부정적'].includes(r.reaction))} />
                             </TabPanel>
                         </TabPanels>
                     </Tabs>
                 </Box>
             </Flex>
 
+            {/* 분석 결과 요약 */}
             <Box bg="white" borderRadius="lg" p={6} mt={6} boxShadow="md">
                 <Text fontSize="xl" fontWeight="bold" mb={4}>[분석 결과 요약]</Text>
                 <VStack align="stretch" spacing={4}>
                     <Box>
                         <Text fontWeight="bold" mb={2}>전체 분석 결과</Text>
-                        <Text>총 {newsArticles.length}건의 뉴스 기사를 분석한 결과, 긍정적인 평가가 56%, 부정적인 평가가 32%, 중립적인 평가가 12%로 나타났습니다.</Text>
-                    </Box>
-                    <Box>
-                        <Text fontWeight="bold" mb={2}>주요 긍정적 요인</Text>
-                        <Text>1. 동물 보호법 개정으로 인한 동물 복지 향상</Text>
-                        <Text>2. 식품안전법 강화로 소비자 신뢰도 상승</Text>
-                        <Text>3. 아동 보호 정책 확대로 사회 안전망 강화</Text>
-                    </Box>
-                    <Box>
-                        <Text fontWeight="bold" mb={2}>주요 부정적 요인</Text>
-                        <Text>1. 환경 규제법 강화로 인한 기업 부담 증가</Text>
-                        <Text>2. 세금 인상에 대한 시민들의 불만</Text>
-                    </Box>
-                    <Box>
-                        <Text fontWeight="bold" mb={2}>향후 제언</Text>
-                        <Text>1. 긍정적 평가를 받은 정책들의 지속적인 모니터링 및 개선</Text>
-                        <Text>2. 부정적 평가를 받은 정책에 대한 보완책 마련</Text>
-                        <Text>3. 중립적 평가를 받은 정책들에 대한 추가 홍보 및 설명 필요</Text>
+                        <Text>총 {reactions.length}건의 뉴스 기사를 분석한 결과, 긍정적인 평가가 {reactions.filter(r => r.reaction === '긍정적').length}%, 부정적인 평가가 {reactions.filter(r => r.reaction === '부정적').length}%, 중립적인 평가가 {reactions.filter(r => !['긍정적', '부정적'].includes(r.reaction)).length}%로 나타났습니다.</Text>
                     </Box>
                 </VStack>
             </Box>
