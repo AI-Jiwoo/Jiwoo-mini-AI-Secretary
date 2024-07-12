@@ -119,7 +119,7 @@ async def search(query: Optional[str] = Query(None, alias="query")):
     # ChatGPT 요청
     chat_model = ChatOpenAI(api_key=chatgpt_key)
 
-    prompt = f"다음 {results_count}개의 사업이 {search_keyword}에 어떤 이익을 줄지 각각 예측해줘. {results}"
+    prompt = f"내 기업은 {search_keyword}에 대한 기업이야. 다음 {results_count}개의 국가 사업이 내 기업에 어떤 이익을 줄지 각각 예측해줘. {results}"
     gpt_result = chat_model.predict(prompt)
 
     # GPT 응답을 각 사업에 매핑
