@@ -3,6 +3,7 @@ from mysql.connector import Error
 from dotenv import load_dotenv
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from openai import OpenAI
 
@@ -17,6 +18,17 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
 
 app = FastAPI()
+
+# CORS 설정
+origins = ["http://localhost:3000"]  # 리액트 애플리케이션의 주소를 추가합니다.
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class InvestmentRequest(BaseModel):
     business_type: str

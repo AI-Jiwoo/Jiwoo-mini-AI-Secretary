@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from newspaper import Article
 from langchain_openai import ChatOpenAI
@@ -7,11 +7,24 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 import feedparser
+from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 # .env 파일 로드
 load_dotenv()
 
 app = FastAPI()
+
+# CORS 설정
+origins = ["http://localhost:3000"]  # 리액트 애플리케이션의 주소를 추가합니다.
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class NewsRequest(BaseModel):
     keyword: str
@@ -20,6 +33,13 @@ class NewsRequest(BaseModel):
 
 class ReactionRequest(BaseModel):
     article_summary: str
+    subject_name: str
+    business_field: str
+    nationality: str
+    company_size: str
+    established_year: str
+    main_products_services: str
+    market_position: str
 
 def scrape_news(keyword: str, start_date: str, end_date: str):
     # 시작 날짜와 끝 날짜로부터 기간을 계산하여 날짜 형식으로 변환
@@ -53,7 +73,7 @@ def generate_summary(article_text: str):
     prompt = f"다음 기사의 핵심내용을 요약해 주세요:\n\n{article_text}"
 
     # OpenAI GPT 모델 초기화
-    gpt_model = ChatOpenAI(openai_api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
+    gpt_model = ChatOpenAI(openai_api_key=os.getenv("OPEN_AI_API_KEY"), model="gpt-3.5-turbo")
 
     # GPT 모델을 사용하여 요약 생성
     response = gpt_model.invoke(prompt, max_tokens=200, stop=None)
@@ -99,19 +119,23 @@ async def get_news(keyword: str, start_date: str, end_date: str):
 
 @app.post('/reaction')
 async def generate_reaction_endpoint(reaction_request: ReactionRequest):
-    article_summary = reaction_request.article_summary
-    subject_info = {
-        'subject_name': input("사업체의 이름을 입력하세요: "),
-        'business_field': input("사업 분야를 입력하세요 (예: IT, 의료, 교육): "),
-        'nationality': input("국적을 입력하세요: "),
-        'company_size': input("기업 규모를 입력하세요 (예: 대기업, 중소기업, 스타트업): "),
-        'established_year': input("설립 연도를 입력하세요: "),
-        'main_products_services': input("주요 제품/서비스를 입력하세요: "),
-        'market_position': input("시장 위치를 입력하세요 (예: 선도 기업, 신생 기업): ")
-    }
-    reaction = generate_reaction(article_summary, subject_info)
+    try:
+        article_summary = reaction_request.article_summary
+        subject_info = {
+            'subject_name': reaction_request.subject_name,
+            'business_field': reaction_request.business_field,
+            'nationality': reaction_request.nationality,
+            'company_size': reaction_request.company_size,
+            'established_year': reaction_request.established_year,
+            'main_products_services': reaction_request.main_products_services,
+            'market_position': reaction_request.market_position
+        }
+        reaction = generate_reaction(article_summary, subject_info)
 
-    return {'reaction': reaction}
+        return {'reaction': reaction}
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
