@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from market_research import market_research_router
 from investment_possibility import investment_possibility_router
+from news_crawling import news_crawling_router
 
 app = FastAPI()
 
@@ -20,6 +21,7 @@ app.add_middleware(
 # 라우터 포함
 app.include_router(market_research_router, prefix="/market_research", tags=["Market Research"])
 app.include_router(investment_possibility_router, prefix="/investment_possibility", tags=["Investment Possibility"])
+app.include_router(news_crawling_router, prefix="/news_crawling", tags=["News Crawling"])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
