@@ -3,9 +3,7 @@ import sys
 import pytest
 from unittest.mock import patch
 from io import StringIO
-
-# 현재 작업 디렉토리를 기준으로 상대 경로로 market_research 모듈을 import
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from datetime import datetime
 from market_research import scrape_news, generate_summary, generate_reaction
 
 @pytest.fixture
