@@ -29,6 +29,6 @@ jobs:
 
     - name: Run tests
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
       run: |
         pytest
