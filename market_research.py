@@ -73,7 +73,7 @@ def generate_summary(article_text: str):
     prompt = f"다음 기사의 핵심내용을 요약해 주세요:\n\n{article_text}"
 
     # OpenAI GPT 모델 초기화
-    gpt_model = ChatOpenAI(openai_api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
+    gpt_model = ChatOpenAI(openai_api_key=os.getenv("OPEN_AI_API_KEY"), model="gpt-3.5-turbo")
 
     # GPT 모델을 사용하여 요약 생성
     response = gpt_model.invoke(prompt, max_tokens=200, stop=None)
