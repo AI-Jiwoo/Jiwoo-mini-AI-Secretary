@@ -100,7 +100,7 @@ async def search(query: Optional[str] = Query(None, alias="query")):
 
         # 유사도 계산
         similarity = util.pytorch_cos_sim(search_embedding, content_embedding).item()
-        percentage =  round((similarity + 1) / 2 * 100, 2)     # 유사도를 백분율로 전환 후 소수점 둘째자리에서 반올림
+        percentage = round((similarity + 1) / 2 * 100, 2)     # 유사도를 백분율로 전환 후 소수점 둘째자리에서 반올림
 
 
         # 결과 저장
