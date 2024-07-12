@@ -1,9 +1,43 @@
-import React, { useState } from 'react';
-import {Box, Button, Center, Flex, Text, VStack} from '@chakra-ui/react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Box, Button, Center, Flex, Text, VStack } from '@chakra-ui/react';
 import PageLayout from '../component/common/PageLayout';
 import DateRangePicker from '../component/common/DateRangePicker';
 import CompanyResultItem from '../component/common/CompanyResult';
 import logo from "../logo/helper.png";
+
+const InfiniteScroll = ({ children, loadMore, hasMore }) => {
+    const observer = React.useRef();
+    const lastElementRef = React.useRef();
+
+    useEffect(() => {
+        const options = {
+            root: null,
+            rootMargin: '20px',
+            threshold: 1.0
+        };
+
+        observer.current = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && hasMore) {
+                loadMore();
+            }
+        }, options);
+
+        if (lastElementRef.current) {
+            observer.current.observe(lastElementRef.current);
+        }
+
+        return () => {
+            if (observer.current) observer.current.disconnect();
+        };
+    }, [loadMore, hasMore]);
+
+    return (
+        <>
+            {children}
+            <div ref={lastElementRef} style={{ height: '20px' }} />
+        </>
+    );
+};
 
 const getTodayString = () => {
     const today = new Date();
@@ -41,12 +75,25 @@ const SimilarServicePage = () => {
     const [startDate, setStartDate] = useState(getTodayString());
     const [endDate, setEndDate] = useState(getTodayString());
     const [isSearched, setIsSearched] = useState(false);
+    const [displayedCompanies, setDisplayedCompanies] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
 
     const companies = [
-        { name: "디에이건축엔지니어링", representative: "어재규", foundingDate: "204년 1990원 999일" },
+        { name: "디에이건축엔지니어링", representative: "어재규", foundingDate: "1990년 1월 1일" },
         { name: "샘플 기업 2", representative: "홍길동", foundingDate: "2020년 1월 1일" },
         { name: "샘플 기업 3", representative: "김철수", foundingDate: "2015년 5월 15일" },
         { name: "샘플 기업 4", representative: "이영희", foundingDate: "2018년 8월 8일" },
+        { name: "샘플 기업 5", representative: "박민수", foundingDate: "2005년 3월 20일" },
+        { name: "샘플 기업 6", representative: "정승훈", foundingDate: "2012년 7월 7일" },
+        { name: "샘플 기업 7", representative: "강지원", foundingDate: "2019년 11월 30일" },
+        { name: "샘플 기업 8", representative: "임서연", foundingDate: "2008년 9월 15일" },
+        { name: "샘플 기업 9", representative: "오민지", foundingDate: "2017년 4월 1일" },
+        { name: "샘플 기업 10", representative: "서준호", foundingDate: "2014년 6월 22일" },
+        { name: "샘플 기업 11", representative: "유미란", foundingDate: "2010년 2월 14일" },
+        { name: "샘플 기업 12", representative: "최동훈", foundingDate: "2016년 10월 5일" },
+        { name: "샘플 기업 13", representative: "한소희", foundingDate: "2013년 12월 25일" },
+        { name: "샘플 기업 14", representative: "배성우", foundingDate: "2011년 8월 18일" },
+        { name: "샘플 기업 15", representative: "노지은", foundingDate: "2007년 5월 3일" },
     ];
 
     const companyDetails = {
@@ -54,6 +101,21 @@ const SimilarServicePage = () => {
         약점: "주요 약점으로는 글로벌 시장에서의 인지도 부족과 일부 제품군에서의 경쟁력 저하가 있습니다. 또한, 내부 의사소통 구조의 개선이 필요하며, 신규 시장 진출 속도가 경쟁사 대비 다소 늦은 편입니다.",
         개선점: "향후 개선이 필요한 부분으로는 마케팅 전략의 다각화, 고객 서비스 품질 향상, 그리고 신규 시장 진출을 위한 전략 수립 등이 있습니다. 또한, 직원 교육 프로그램 강화와 조직 문화 개선을 통해 내부 역량을 강화할 필요가 있습니다."
     };
+
+    const loadMoreCompanies = useCallback(() => {
+        const currentLength = displayedCompanies.length;
+        const more = companies.slice(currentLength, currentLength + 5);
+        setDisplayedCompanies(prev => [...prev, ...more]);
+        if (currentLength + more.length >= companies.length) {
+            setHasMore(false);
+        }
+    }, [displayedCompanies, companies]);
+
+    useEffect(() => {
+        if (isSearched && displayedCompanies.length === 0) {
+            loadMoreCompanies();
+        }
+    }, [isSearched, displayedCompanies.length, loadMoreCompanies]);
 
     return (
         <PageLayout>
@@ -64,12 +126,27 @@ const SimilarServicePage = () => {
                 onEndDateChange={(e) => setEndDate(e.target.value)}
             />
 
-            <Button onClick={() => setIsSearched(!isSearched)} mb={4}>
+            <Button
+                onClick={() => {
+                    setIsSearched(!isSearched);
+                    setDisplayedCompanies([]);
+                    setHasMore(true);
+                }}
+                mb={4}
+            >
                 {isSearched ? "검색 전 상태로 변경" : "검색 후 상태로 변경"}
             </Button>
 
             <Flex gap={6}>
-                <Box width="40%" bg="white" borderRadius="lg" p={6} boxShadow="md">
+                <Box
+                    width="40%"
+                    bg="white"
+                    borderRadius="lg"
+                    p={6}
+                    boxShadow="md"
+                    maxHeight="500px"
+                    overflowY="auto"
+                >
                     <Text fontSize="xl" fontWeight="bold" mb="4">기업 검색 결과</Text>
                     {!isSearched ? (
                         <Center flexDirection="column">
@@ -83,11 +160,13 @@ const SimilarServicePage = () => {
                             </Text>
                         </Center>
                     ) : (
-                        <VStack spacing="4" align="stretch">
-                            {companies.map((company, index) => (
-                                <CompanyResultItem key={index} company={company} />
-                            ))}
-                        </VStack>
+                        <InfiniteScroll loadMore={loadMoreCompanies} hasMore={hasMore}>
+                            <VStack spacing="4" align="stretch">
+                                {displayedCompanies.map((company, index) => (
+                                    <CompanyResultItem key={index} company={company} />
+                                ))}
+                            </VStack>
+                        </InfiniteScroll>
                     )}
                 </Box>
 

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from 'date-fns/locale';
+import Overlay from '../component/common/Overlay';
+
 import {
     Box,
     Checkbox,
@@ -21,6 +24,7 @@ import {
     StepStatus,
     StepTitle,
     Stepper,
+    Spinner
 } from '@chakra-ui/react';
 
 const steps = [
@@ -29,15 +33,38 @@ const steps = [
 ];
 
 const BusinessInfoForm = () => {
+    const navigate = useNavigate();
     const [activeStep, setActiveStep] = useState(0);
     const [startDate, setStartDate] = useState(new Date());
     const [isPrivacyPolicyChecked, setIsPrivacyPolicyChecked] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        companyName: '',
+        nationality: '',
+        business: '',
+        establishmentYear: null,
+        companySize: '',
+        address: '',
+        products: ''
+    });
 
     const nextStep = () => setActiveStep(prev => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => setActiveStep(prev => Math.max(prev - 1, 0));
 
     const handlePrivacyPolicyChange = (e) => {
         setIsPrivacyPolicyChecked(e.target.checked);
+    };
+
+    const handleFormChange = (field, value) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleComplete = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            const { companyName, nationality, business, establishmentYear, companySize, address, products } = formData;
+            navigate('/MarketResearch', { state: { companyName, nationality, business, establishmentYear, companySize, address, products } });
+        }, 2000);
     };
 
     const renderStepContent = (step) => {
@@ -47,11 +74,23 @@ const BusinessInfoForm = () => {
                     <>
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">회사명(Company name)</Text>
-                            <Input placeholder="회사명을 입력하세요" bg="white" />
+                            <Input
+                                placeholder="회사명을 입력하세요"
+                                bg="white"
+                                color="black"
+                                value={formData.companyName}
+                                onChange={(e) => handleFormChange('companyName', e.target.value)}
+                            />
                         </Box>
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">국적(Nationality)</Text>
-                            <Select placeholder="국적을 선택하세요" bg="white">
+                            <Select
+                                placeholder="국적을 선택하세요"
+                                bg="white"
+                                color="black"
+                                value={formData.nationality}
+                                onChange={(e) => handleFormChange('nationality', e.target.value)}
+                            >
                                 <option>대한민국</option>
                                 <option>미국</option>
                                 <option>일본</option>
@@ -60,19 +99,26 @@ const BusinessInfoForm = () => {
                         </Box>
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">업종(Business)</Text>
-                            <Input placeholder="업종을 입력하세요" bg="white" />
+                            <Input
+                                placeholder="업종을 입력하세요"
+                                bg="white"
+                                color="black"
+                                value={formData.business}
+                                onChange={(e) => handleFormChange('business', e.target.value)}
+                            />
                         </Box>
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">설립연도(Year of establishment)</Text>
                             <DatePicker
-                                selected={startDate}
-                                onChange={(date) => setStartDate(date)}
+                                selected={formData.establishmentYear}
+                                onChange={(date) => handleFormChange('establishmentYear', date)}
                                 dateFormat="yyyy/MM/dd"
+                                color="black"
                                 locale={ko}
                                 showYearDropdown
                                 scrollableYearDropdown
                                 yearDropdownItemNumber={50}
-                                placeholderText="설립일을 선택하세요"
+                                placeholderText="설립일자를 선택하세요"
                                 customInput={<Input />}
                             />
                         </Box>
@@ -83,15 +129,33 @@ const BusinessInfoForm = () => {
                     <>
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">기업 규모(Company Size)</Text>
-                            <Input placeholder="기업 규모를 입력하세요" bg="white" color="black" />
+                            <Input
+                                placeholder="기업 규모를 입력하세요"
+                                bg="white"
+                                color="black"
+                                value={formData.companySize}
+                                onChange={(e) => handleFormChange('companySize', e.target.value)}
+                            />
                         </Box>
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">주소(Address)</Text>
-                            <Input placeholder="주소를 입력하세요" bg="white" color="black" />
+                            <Input
+                                placeholder="주소를 입력하세요"
+                                bg="white"
+                                color="black"
+                                value={formData.address}
+                                onChange={(e) => handleFormChange('address', e.target.value)}
+                            />
                         </Box>
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">주요 제품/서비스(Main Products/Services)</Text>
-                            <Input placeholder="주요 제품/서비스를 입력하세요" bg="white" color="black" />
+                            <Input
+                                placeholder="주요 제품/서비스를 입력하세요"
+                                bg="white"
+                                color="black"
+                                value={formData.products}
+                                onChange={(e) => handleFormChange('products', e.target.value)}
+                            />
                         </Box>
                         {activeStep === steps.length - 1 && (
                             <Box>
@@ -123,7 +187,7 @@ const BusinessInfoForm = () => {
                         </Text>
                     </Text>
                     <Box width="100%" bg="white" borderRadius="2xl" boxShadow="md" p={6}>
-                        <Stepper index={activeStep} colorScheme="blue" mb={6}>
+                        <Stepper index={activeStep === steps.length - 1 && isLoading ? steps.length - 1 : activeStep} colorScheme="blue" mb={6}>
                             {steps.map((step, index) => (
                                 <Step key={index}>
                                     <StepIndicator>
@@ -154,7 +218,7 @@ const BusinessInfoForm = () => {
                                 <Button
                                     colorScheme="blue"
                                     size="sm"
-                                    onClick={nextStep}
+                                    onClick={activeStep === steps.length - 1 ? handleComplete : nextStep}
                                     isDisabled={activeStep === steps.length - 1 && !isPrivacyPolicyChecked}
                                 >
                                     {activeStep === steps.length - 1 ? '완료' : '다음'}
@@ -164,6 +228,8 @@ const BusinessInfoForm = () => {
                     </Box>
                 </VStack>
             </Container>
+            {isLoading && <Overlay />}
+
         </Flex>
     );
 };
