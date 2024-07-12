@@ -150,7 +150,7 @@ const LandingPage = () => {
                                 mt={4}
                                 onClick={handleGetStartedClick}
                             >
-                                로그인 바로가기
+                                Get Started
                             </Button>
                         </Flex>
                     </Box>
