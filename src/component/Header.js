@@ -16,7 +16,6 @@ const Header = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOption, setSelectedOption] = useState(options[0].value);
 
-
     // 로고 클릭 시 홈 페이지로 이동하는 함수
     const handleLogoClick = () => {
         navigate('/');
@@ -24,10 +23,11 @@ const Header = () => {
 
     // 검색 버튼 클릭 시 검색 결과 페이지로 이동하는 함수
     const handleSearch = () => {
+        console.log("Search triggered", selectedOption, searchTerm); // 디버깅용 로그
         if (selectedOption && searchTerm) {
             const businessInfo = {
                 business: searchTerm,
-                // 다른 필드들은 기본값 또는 빈 값으로 설정
+                // 다른 필드들은 기본값으로 유지
                 companyName: '',
                 nationality: '',
                 companySize: '',
@@ -35,10 +35,24 @@ const Header = () => {
                 products: '',
                 marketPosition: ''
             };
-            navigate(`/${selectedOption}`, {
-                state: { businessInfo },
-                search: `?query=${encodeURIComponent(searchTerm)}`
-            });
+
+            // SimilarService 옵션이 선택되었을 때만 해당 페이지로 이동
+            if (selectedOption === "SimilarService") {
+                navigate(`/${selectedOption}`, {
+                    state: { businessInfo },
+                    search: `?query=${encodeURIComponent(searchTerm)}`
+                });
+            } else {
+                // 다른 옵션들에 대한 처리
+                console.log(`Searching ${selectedOption} with term: ${searchTerm}`);
+                navigate(`/${selectedOption}`, {
+                    state: { businessInfo },
+                    search: `?query=${encodeURIComponent(searchTerm)}`
+                });
+            }
+        } else {
+            console.log("Please select an option and enter a search term");
+            // 사용자에게 옵션 선택과 검색어 입력을 요청하는 알림을 표시할 수 있습니다.
         }
     };
 
@@ -81,7 +95,10 @@ const Header = () => {
                 >
                     <Select
                         value={selectedOption}
-                        onChange={(e) => setSelectedOption(e.target.value)}
+                        onChange={(e) => {
+                            setSelectedOption(e.target.value);
+                            console.log("Selected option:", e.target.value); // 디버깅용 로그
+                        }}
                         color="black"
                         border="none"
                         borderRadius="md"
