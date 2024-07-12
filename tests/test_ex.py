@@ -1,7 +1,10 @@
-# test_ex.py
 import unittest
-from io import StringIO
 import sys
+from io import StringIO
+import os
+# sys.path에 프로젝트의 루트 디렉토리를 추가
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from ex import greet
 
 class TestGreetFunction(unittest.TestCase):
