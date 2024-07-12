@@ -88,7 +88,7 @@ def generate_reaction(article_summary: str, subject_info: dict):
 
     return reaction
 
-@app.get('/api/news')
+@app.get('/news')
 async def get_news(keyword: str, start_date: str, end_date: str):
     news_articles = scrape_news(keyword, start_date, end_date)
 
@@ -97,7 +97,7 @@ async def get_news(keyword: str, start_date: str, end_date: str):
 
     return news_articles
 
-@app.post('/api/reaction')
+@app.post('/reaction')
 async def generate_reaction_endpoint(reaction_request: ReactionRequest):
     article_summary = reaction_request.article_summary
     subject_info = {
