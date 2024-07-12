@@ -62,8 +62,14 @@ const BusinessInfoForm = () => {
     const handleComplete = () => {
         setIsLoading(true);
         setTimeout(() => {
-            const { companyName, nationality, business, establishmentYear, companySize, address, products } = formData;
-            navigate('/MarketResearch', { state: { companyName, nationality, business, establishmentYear, companySize, address, products } });
+            const formattedData = {
+                ...formData,
+                establishmentYear: formData.establishmentYear
+                    ? formData.establishmentYear.toISOString().split('T')[0]
+                    : null,
+                business: formData.business // 명시적으로 business 필드를 포함
+            };
+            navigate('/MarketResearch', { state: formattedData });
         }, 2000);
     };
 
@@ -98,13 +104,14 @@ const BusinessInfoForm = () => {
                             </Select>
                         </Box>
                         <Box>
-                            <Text mb={2} color="black" textAlign="left" fontWeight="bold">업종(Business)</Text>
+                            <Text mb={2} color="black" textAlign="left" fontWeight="bold">업종(Business) *</Text>
                             <Input
-                                placeholder="업종을 입력하세요"
+                                placeholder="업종을 입력하세요 (예: IT, 의료, 교육)"
                                 bg="white"
                                 color="black"
                                 value={formData.business}
                                 onChange={(e) => handleFormChange('business', e.target.value)}
+                                isRequired={true}
                             />
                         </Box>
                         <Box>
