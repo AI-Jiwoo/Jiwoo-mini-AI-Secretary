@@ -35,7 +35,7 @@ chatgpt_key = os.getenv("OPEN_AI_API_KEY")
 # AI 모델 설정 
 model = SentenceTransformer('xlm-r-100langs-bert-base-nli-stsb-mean-tokens')
 
-@app.get('/Business', response_model=List[dict])    # 리스트 형태의 응답 데이터
+@app.get('/business', response_model=List[dict])    # 리스트 형태의 응답 데이터
 async def search(query: Optional[str] = Query(None, alias="query")):
 
     # 프론트에서 키워드 받기
@@ -100,7 +100,7 @@ async def search(query: Optional[str] = Query(None, alias="query")):
 
         # 유사도 계산
         similarity = util.pytorch_cos_sim(search_embedding, content_embedding).item()
-        percentage = (similarity + 1) / 2 * 100     # 유사도를 백분율로 전환
+        percentage = round((similarity + 1) / 2 * 100, 2)     # 유사도를 백분율로 전환 후 소수점 둘째자리에서 반올림
 
 
         # 결과 저장
