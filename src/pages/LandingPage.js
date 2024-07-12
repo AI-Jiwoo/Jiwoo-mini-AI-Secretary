@@ -71,8 +71,9 @@ const LandingPage = () => {
     const [fallingLogos, setFallingLogos] = useState([]);
 
     const handleGetStartedClick = () => {
-        navigate('/SimilarService');
+        document.getElementById('business-info-form').scrollIntoView({ behavior: 'smooth' });
     };
+
 
     const handleLogoClick = () => {
         const newLogos = Array.from({ length: 10 }, () => ({
@@ -177,7 +178,9 @@ const LandingPage = () => {
                     </Flex>
                 </AnimatedSection>
                 <AnimatedSection delay={200} backgroundColor="#63B3ED">
-                    <BusinessInfoForm />
+                    <Box id="business-info-form">
+                        <BusinessInfoForm />
+                    </Box>
                 </AnimatedSection>
                 {fallingLogos.map(logo => (
                     <FallingLogo key={logo.id} x={logo.x} y={logo.y} />

@@ -1,21 +1,21 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import { Flex, Image, Select, Text, InputGroup, Input, InputRightElement, Button } from '@chakra-ui/react';
 import { Search2Icon, LockIcon, EditIcon } from '@chakra-ui/icons';
 import logo from '../logo/JiwooLogo.png';
 
 const Header = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const options = [
         { value: "", label: "선택" },
         { value: "SimilarService", label: "유사서비스" },
         { value: "BusinessSupport", label: "정책" },
         { value: "MarketResearch", label: "시장조사" }
     ];
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedOption, setSelectedOption] = useState(options[0].value);
 
-    // 선택된 옵션과 검색어 상태
-    const [selectedOption, setSelectedOption] = React.useState(options[0].value);
-    const [searchTerm, setSearchTerm] = React.useState('');
 
     // 로고 클릭 시 홈 페이지로 이동하는 함수
     const handleLogoClick = () => {
@@ -25,7 +25,20 @@ const Header = () => {
     // 검색 버튼 클릭 시 검색 결과 페이지로 이동하는 함수
     const handleSearch = () => {
         if (selectedOption && searchTerm) {
-            navigate(`/${selectedOption}?query=${encodeURIComponent(searchTerm)}`);
+            const businessInfo = {
+                business: searchTerm,
+                // 다른 필드들은 기본값 또는 빈 값으로 설정
+                companyName: '',
+                nationality: '',
+                companySize: '',
+                establishmentYear: '',
+                products: '',
+                marketPosition: ''
+            };
+            navigate(`/${selectedOption}`, {
+                state: { businessInfo },
+                search: `?query=${encodeURIComponent(searchTerm)}`
+            });
         }
     };
 
@@ -56,6 +69,51 @@ const Header = () => {
                 >
                     <Image src={logo} alt="JIWOO Logo" boxSize="30px" mr="2" />
                     <Text fontSize="xl" fontWeight="bold">JIWOO</Text>
+                </Flex>
+
+                <Flex
+                    bg="white"
+                    borderRadius="md"
+                    overflow="hidden"
+                    maxWidth="450px"
+                    width="100%"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <Select
+                        value={selectedOption}
+                        onChange={(e) => setSelectedOption(e.target.value)}
+                        color="black"
+                        border="none"
+                        borderRadius="md"
+                        width="120px"
+                        mr="2"
+                        _focus={{ boxShadow: 'none' }}
+                    >
+                        {options.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </Select>
+                    <InputGroup size="md" flex={1}>
+                        <Input
+                            placeholder="검색"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            color="black"
+                            border="none"
+                            _focus={{ boxShadow: 'none' }}
+                        />
+                        <InputRightElement>
+                            <Search2Icon
+                                color="gray.500"
+                                cursor="pointer"
+                                onClick={handleSearch}
+                                _hover={{ color: "blue.500" }}
+                            />
+                        </InputRightElement>
+                    </InputGroup>
                 </Flex>
             </Flex>
 

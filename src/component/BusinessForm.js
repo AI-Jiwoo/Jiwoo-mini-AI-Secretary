@@ -44,7 +44,7 @@ const BusinessInfoForm = () => {
         business: '',
         establishmentYear: null,
         companySize: '',
-        address: '',
+        marketPosition: '',
         products: ''
     });
 
@@ -61,16 +61,16 @@ const BusinessInfoForm = () => {
 
     const handleComplete = () => {
         setIsLoading(true);
-        setTimeout(() => {
-            const formattedData = {
-                ...formData,
-                establishmentYear: formData.establishmentYear
-                    ? formData.establishmentYear.toISOString().split('T')[0]
-                    : null,
-                business: formData.business // 명시적으로 business 필드를 포함
-            };
-            navigate('/MarketResearch', { state: formattedData });
-        }, 2000);
+        const formattedData = {
+            ...formData,
+            establishmentYear: formData.establishmentYear
+                ? formData.establishmentYear.toISOString().split('T')[0]
+                : null,
+        };
+        navigate('/MarketResearch', {
+            state: { businessInfo: formattedData },
+            search: `?query=${encodeURIComponent(formData.business)}`
+        });
     };
 
     const renderStepContent = (step) => {
@@ -137,7 +137,7 @@ const BusinessInfoForm = () => {
                         <Box>
                             <Text mb={2} color="black" textAlign="left" fontWeight="bold">기업 규모(Company Size)</Text>
                             <Input
-                                placeholder="기업 규모를 입력하세요"
+                                placeholder="기업 규모를 입력하세요 (ex. 대기업)"
                                 bg="white"
                                 color="black"
                                 value={formData.companySize}
@@ -145,13 +145,13 @@ const BusinessInfoForm = () => {
                             />
                         </Box>
                         <Box>
-                            <Text mb={2} color="black" textAlign="left" fontWeight="bold">주소(Address)</Text>
+                            <Text mb={2} color="black" textAlign="left" fontWeight="bold">기업 포지션(position)</Text>
                             <Input
-                                placeholder="주소를 입력하세요"
+                                placeholder="기업 위치를 입력하세요 (ex.신생기업)"
                                 bg="white"
                                 color="black"
-                                value={formData.address}
-                                onChange={(e) => handleFormChange('address', e.target.value)}
+                                value={formData.marketPosition}
+                                onChange={(e) => handleFormChange('marketPosition', e.target.value)}
                             />
                         </Box>
                         <Box>
