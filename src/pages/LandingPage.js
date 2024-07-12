@@ -1,14 +1,46 @@
-import React, { useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactTypingEffect from 'react-typing-effect';
 import { Button, ChakraProvider, Flex, Box, Text, Image } from '@chakra-ui/react';
 import logo from '../logo/jiwooLanding.png';
+import logo2 from '../logo/JiwooLogo.png'
 import backgroundVideo from '../video/1118545_4k_Form_1280x720.mp4';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
 import '../LandingPage.css';
 import {EditIcon, LockIcon} from "@chakra-ui/icons";
 import BusinessInfoForm from "../component/BusinessForm";
+import {motion, useAnimation} from 'framer-motion'
 
+const FallingLogo = ({ x, y }) => {
+    const controls = useAnimation();
+
+    useEffect(() => {
+        controls.start({
+            y: window.innerHeight,
+            transition: {
+                duration: 3 + Math.random() * 2, // 3~5초 사이의 랜덤한 시간
+                ease: 'linear'
+            }
+        });
+    }, [controls]);
+
+    return (
+        <motion.img
+            src={logo2}
+            alt="Falling JIWOO logo"
+            style={{
+                position: 'fixed',
+                left: x,
+                top: y,
+                width: '50px',
+                height: 'auto',
+                zIndex: 1000
+            }}
+            initial={{ y: y }}
+            animate={controls}
+        />
+    );
+};
 const AnimatedSection = ({ children, delay = 0, backgroundColor = 'transparent' }) => {
     const ref = useRef(null);
     const entry = useIntersectionObserver(ref, {
@@ -37,10 +69,25 @@ const AnimatedSection = ({ children, delay = 0, backgroundColor = 'transparent' 
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const [fallingLogos, setFallingLogos] = useState([]);
 
     const handleGetStartedClick = () => {
-        navigate('/SimilarService');
+        document.getElementById('business-info-form').scrollIntoView({ behavior: 'smooth' });
     };
+
+
+    const handleLogoClick = () => {
+        const newLogos = Array.from({ length: 10 }, () => ({
+            id: Date.now() + Math.random(),
+            x: Math.random() * window.innerWidth,
+            y: -100 - Math.random() * 500, // 로고들이 서로 다른 높이에서 시작하도록 합니다
+        }));
+        setFallingLogos(prevLogos => [...prevLogos, ...newLogos]);
+    };
+
+    useEffect(() => {
+        console.log('fallingLogos updated:', fallingLogos);
+    }, [fallingLogos]);
 
     return (
         <ChakraProvider>
@@ -81,7 +128,16 @@ const LandingPage = () => {
                             Your browser does not support the video tag.
                         </Box>
                         <Flex direction="column" align="center" justify="center" height="100%" position="relative" zIndex="1">
-                            <Image src={logo} alt="JIWOO logo" className="landing-logo" width="90vw" maxWidth="900px" />
+                            <Image src={logo}
+                                   alt="JIWOO logo"
+                                   className="landing-logo"
+                                   width="90vw"
+                                   maxWidth="900px"
+                                    onClick={() => {
+                                        console.log('Logo clicked');
+                                        handleLogoClick();
+                                    }}
+                                    style={{cursor:'pointer'}}/>
                             <Box mt="-20px">
                             <ReactTypingEffect
                                 text={['지혜로운 도우미 JIWOO를 경험해보세요!']}
@@ -96,7 +152,7 @@ const LandingPage = () => {
                                 mt={4}
                                 onClick={handleGetStartedClick}
                             >
-                                로그인 바로가기
+                                Get Started
                             </Button>
                         </Flex>
                     </Box>
@@ -123,9 +179,13 @@ const LandingPage = () => {
                     </Flex>
                 </AnimatedSection>
                 <AnimatedSection delay={200} backgroundColor="#63B3ED">
-                    <BusinessInfoForm />
+                    <Box id="business-info-form">
+                        <BusinessInfoForm />
+                    </Box>
                 </AnimatedSection>
-
+                {fallingLogos.map(logo => (
+                    <FallingLogo key={logo.id} x={logo.x} y={logo.y} />
+                ))}
             </Box>
         </ChakraProvider>
     );

@@ -5,21 +5,19 @@ const ResultTable = ({ data }) => (
     <Table variant="simple">
         <Thead>
             <Tr>
-                <Th>정책명</Th>
+                <Th>기사명</Th>
                 <Th>결과</Th>
-                <Th isNumeric>건수</Th>
             </Tr>
         </Thead>
         <Tbody>
             {data.map((item, index) => (
                 <Tr key={index}>
-                    <Td>{item.policy}</Td>
+                    <Td>{item.title}</Td>
                     <Td>
-                        <Badge colorScheme={item.result === '긍정' ? 'green' : item.result === '부정' ? 'red' : 'gray'}>
-                            {item.result}
+                        <Badge colorScheme={item.reaction.includes('긍정적') ? 'green' : item.reaction.includes('부정적') ? 'red' : 'gray'}>
+                            {item.reaction.includes('긍정적') ? '긍정' : item.reaction.includes('부정적') ? '부정' : '기타'}
                         </Badge>
                     </Td>
-                    <Td isNumeric>{item.count}건</Td>
                 </Tr>
             ))}
         </Tbody>

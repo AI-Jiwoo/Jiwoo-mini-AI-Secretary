@@ -4,40 +4,8 @@ import PageLayout from '../component/common/PageLayout';
 import DateRangePicker from '../component/common/DateRangePicker';
 import CompanyResultItem from '../component/common/CompanyResult';
 import logo from "../logo/helper.png";
-
-const InfiniteScroll = ({ children, loadMore, hasMore }) => {
-    const observer = React.useRef();
-    const lastElementRef = React.useRef();
-
-    useEffect(() => {
-        const options = {
-            root: null,
-            rootMargin: '20px',
-            threshold: 1.0
-        };
-
-        observer.current = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting && hasMore) {
-                loadMore();
-            }
-        }, options);
-
-        if (lastElementRef.current) {
-            observer.current.observe(lastElementRef.current);
-        }
-
-        return () => {
-            if (observer.current) observer.current.disconnect();
-        };
-    }, [loadMore, hasMore]);
-
-    return (
-        <>
-            {children}
-            <div ref={lastElementRef} style={{ height: '20px' }} />
-        </>
-    );
-};
+import InfiniteScroll from '../component/InfiniteScroll';
+import CompanyDetailCard from "../component/CompanyDetailCard";
 
 const getTodayString = () => {
     const today = new Date();
@@ -45,30 +13,6 @@ const getTodayString = () => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-};
-
-const CompanyDetailCard = ({ title, content, isSearched }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    return (
-        <Box p={6} bg="white" borderRadius="lg" boxShadow="md" cursor="pointer" onClick={() => setIsExpanded(!isExpanded)}>
-            <Text fontSize="xl" fontWeight="bold" mb="2">
-                {isSearched ? "디에이건축엔지니어링" : "[기업이름]"}의 {title}
-            </Text>
-            {isSearched ? (
-                <>
-                    <Text color="gray.700">
-                        {isExpanded ? content : `${content.slice(0, 50)}...`}
-                    </Text>
-                    <Text color="blue.500" mt={2}>
-                        {isExpanded ? "접기" : "더 보기"}
-                    </Text>
-                </>
-            ) : (
-                <Text color="gray.500">기업이 선택되지 않았어요</Text>
-            )}
-        </Box>
-    );
 };
 
 const SimilarServicePage = () => {
@@ -118,6 +62,8 @@ const SimilarServicePage = () => {
     }, [isSearched, displayedCompanies.length, loadMoreCompanies]);
 
     return (
+
+
         <PageLayout>
             <DateRangePicker
                 startDate={startDate}
@@ -177,6 +123,7 @@ const SimilarServicePage = () => {
                             title={item}
                             content={companyDetails[item]}
                             isSearched={isSearched}
+                            companyName="디에이건축엔지니어링"
                         />
                     ))}
                 </VStack>

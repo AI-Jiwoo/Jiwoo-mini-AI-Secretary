@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import {
     Box,
     Flex,
@@ -36,7 +37,7 @@ const BusinessSupportPage = () => {
     const [isLoadingPublic, setIsLoadingPublic] = useState(false);
     const [policyData, setPolicyData] = useState([]);
     const [publicData, setPublicData] = useState([]);
-    const [activeTab, setActiveTab] = useState(0); // 0: 정책 데이터, 1: 공공 데이터
+    const [activeTab, setActiveTab] = useState(0);
     const location = useLocation();
 
     useEffect(() => {
@@ -44,45 +45,40 @@ const BusinessSupportPage = () => {
         const query = params.get('query');
         if (query) {
             setSearchQuery(query);
-
-            // 정책 데이터 불러오기
-            fetchPolicyData(query)
-                .then((data) => {
-                    setPolicyData(data);
-                    setIsLoadingPolicy(false);
-                })
-                .catch((error) => {
-                    console.error('정책 데이터 불러오기 실패:', error);
-                    setIsLoadingPolicy(false);
-                });
+            fetchPolicyData(query);
         }
     }, [location]);
 
+    const fetchPolicyData = async (query) => {
+        setIsLoadingPolicy(true);
+        try {
+            const response = await axios.get('http://127.0.0.1:8000/business', {
+                params: {
+                    query: query
+                }
+            });
+            console.log('Received data:', response.data);
+            setPolicyData(response.data);
+        } catch (error) {
+            console.error('정책 데이터 불러오기 실패:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+            }
+        } finally {
+            setIsLoadingPolicy(false);
+        }
+    };
+
     const handleTabChange = (index) => {
         setActiveTab(index);
-        if (index === 1) {
+        if (index === 1 && !publicData.length) {
             setIsLoadingPublic(true);
             fetchPublicData(searchQuery);
         }
     };
 
-    const fetchPolicyData = (query) => {
-        return new Promise((resolve, reject) => {
-            // 예시: 2초 후에 mock 데이터 반환
-            setTimeout(() => {
-                resolve([
-                    { policy: "동물 어쩌구 법", result: "긍정", count: 506 },
-                    { policy: "식품 법", result: "긍정", count: 500 },
-                    { policy: "아동 법", result: "긍정", count: 230 },
-                    { policy: "그 밖의 안전4법", result: "긍정", count: 120 },
-                ]);
-            }, 2000);
-        });
-    };
-
     const fetchPublicData = (query) => {
         return new Promise((resolve, reject) => {
-            // 예시: 2.5초 후에 mock 데이터 반환
             setTimeout(() => {
                 setPublicData([
                     { policy: "공공 데이터 1", result: "긍정", count: 300 },
@@ -92,6 +88,9 @@ const BusinessSupportPage = () => {
                 setIsLoadingPublic(false);
                 resolve();
             }, 2500);
+        }).catch((error) => {
+            console.error('공공 데이터 불러오기 실패:', error);
+            setIsLoadingPublic(false);
         });
     };
 
@@ -122,7 +121,6 @@ const BusinessSupportPage = () => {
                 )}
 
                 <Flex gap={6}>
-                    {/* 왼쪽: 정책 데이터 */}
                     <Box width="50%" bg="white" borderRadius="lg" p={6} boxShadow="md">
                         <Tabs index={activeTab} onChange={handleTabChange}>
                             <TabList>
@@ -131,11 +129,22 @@ const BusinessSupportPage = () => {
                             </TabList>
                             <TabPanels>
                                 <TabPanel>
-                                    {isLoadingPolicy && <Overlay />}
-                                    <Text fontSize="xl" fontWeight="bold" mb={4}>[정책 데이터] 공공 데이터 및 K-Startup 분석 결과</Text>
-                                    <Text fontWeight="bold" mb={2}>정책명: 르르르</Text>
-                                    <Text fontSize="sm" color="gray.500">미디어데이터 24년07월10일 갱신</Text>
-                                    <Text mt={2}>정책 내용 어쩌구 머쩌구 설명...</Text>
+                                    {isLoadingPolicy ? (
+                                        <Overlay />
+                                    ) : (
+                                        <>
+                                            <Text fontSize="xl" fontWeight="bold" mb={4}>[정책 데이터] 공공 데이터 및 K-Startup 분석 결과</Text>
+                                            {policyData.map((article, index) => (
+                                                <Box key={index} mb={4}>
+                                                    <Text fontWeight="bold">{article.title}</Text>
+                                                    <Text>{article.text.substring(0, 200)}...</Text>
+                                                    <Text as="a" color="blue.500" href={article.url} target="_blank" rel="noopener noreferrer">
+                                                        원문 보기
+                                                    </Text>
+                                                </Box>
+                                            ))}
+                                        </>
+                                    )}
                                 </TabPanel>
                                 <TabPanel>
                                     {isLoadingPublic && <Overlay />}
@@ -148,7 +157,6 @@ const BusinessSupportPage = () => {
                         </Tabs>
                     </Box>
 
-                    {/* 오른쪽: 긍부정 비율 */}
                     <Box width="50%" bg="white" borderRadius="lg" p={6} boxShadow="md">
                         <Text fontSize="xl" fontWeight="bold" mb={4}>[긍부정 비율]</Text>
                         <Box height="300px">
@@ -157,7 +165,6 @@ const BusinessSupportPage = () => {
                     </Box>
                 </Flex>
 
-                {/* 정책 테이블 */}
                 <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
                     <Tabs>
                         <TabList mb={4}>
@@ -180,7 +187,6 @@ const BusinessSupportPage = () => {
                     </Tabs>
                 </Box>
 
-                {/* 분석 결과 요약 */}
                 <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
                     <Text fontSize="xl" fontWeight="bold" mb={4}>[분석 결과 요약]</Text>
                     <Text>
