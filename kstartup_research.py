@@ -16,9 +16,11 @@ load_dotenv()
 # FastAPI 설정
 app = FastAPI()
 
+origins = ["http://localhost:3000/"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # 모든 출처 허용 
+    allow_origins=origins, 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -77,7 +79,6 @@ async def search(query: Optional[str] = Query(None, alias="query")):
 
 
     # # 타이틀 임베딩 생성
-    # title_embedding = model.encode('', convert_to_tensor=True)
 
     # 검색 키워드 임베딩 생성
     search_embedding = model.encode(search_keyword, convert_to_tensor=True)
@@ -101,11 +102,6 @@ async def search(query: Optional[str] = Query(None, alias="query")):
         similarity = util.pytorch_cos_sim(search_embedding, content_embedding).item()
         percentage = (similarity + 1) / 2 * 100     # 유사도를 백분율로 전환
 
-    #     print(f"Title: {announcement_title}")
-    #     print(f"Content: {announcement_content}")
-    #     print(f"URL: {announcement_url}")
-    #     print(f"Relatedness: {percentage:.2f}%")
-    #     print("\n")
 
         # 결과 저장
         results.append({
@@ -120,21 +116,10 @@ async def search(query: Optional[str] = Query(None, alias="query")):
     results_count = 5
     results = sorted(results, key=lambda x: x['similarity'], reverse=True)[:results_count]
 
-    # 결과 출력
-    for result in results:
-        print(f"Title: {result['title']}")
-        print(f"Content: {result['content']}")
-        print(f"URL: {result['url']}")
-        print(f"Relatedness: {result['similarity']:.2f}%")
-        print("\n")
-
-
-
     # ChatGPT 요청
     chat_model = ChatOpenAI(api_key=chatgpt_key)
 
     prompt = f"다음 {results_count}개의 사업이 {search_keyword}에 어떤 이익을 줄지 각각 예측해줘. {results}"
-    print(prompt)
     gpt_result = chat_model.predict(prompt)
 
     # GPT 응답을 각 사업에 매핑
@@ -150,11 +135,8 @@ async def search(query: Optional[str] = Query(None, alias="query")):
             # \s*:\s* : 공백, 콜론 제거
             results[i]['gpt_response'] = cleaned_response
 
-    # print(gpt_result)
 
     # 최종 결과 반환
-    print(json.dumps(results, indent=4, ensure_ascii=False))
-    
     return results
 
 if __name__ == '__main__' :
