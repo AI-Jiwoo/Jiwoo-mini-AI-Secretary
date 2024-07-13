@@ -17,7 +17,7 @@ const Sidebar = ({ isOpen, onClose, options, onPageChange, searchTerm }) => {
                             <Button
                                 key={option.value}
                                 onClick={() => {
-                                    console.log("Button clicked:", option.value, searchTerm);
+                                    console.log(`Sidebar button clicked: ${option.value}, searchTerm: ${searchTerm}`);
                                     onPageChange(option.value, searchTerm);
                                 }}
                                 variant="ghost"

@@ -139,7 +139,10 @@ const MarketResearch = () => {
                     <Box>
                         <Text fontWeight="bold" mb={2}>전체 분석 결과</Text>
                         <Text>
-                            총 {reactions.length}건의 뉴스 기사를 분석한 결과, 긍정적인 평가가 {reactions.filter(r => r.reaction === '긍정적').length}%, 부정적인 평가가 {reactions.filter(r => r.reaction === '부정적').length}%, 중립적인 평가가 {reactions.filter(r => !['긍정적', '부정적'].includes(r.reaction)).length}%로 나타났습니다.
+                            총 {reactions.length}건의 뉴스 기사를 분석한 결과,
+                            긍정적인 평가가 {reactions.filter(r => r.reaction && r.reaction.includes('긍정')).length}건,
+                            부정적인 평가가 {reactions.filter(r => r.reaction && r.reaction.includes('부정')).length}건,
+                            중립적인 평가가 {reactions.filter(r => r.reaction && !r.reaction.includes('긍정') && !r.reaction.includes('부정')).length}건으로 나타났습니다.
                         </Text>
                     </Box>
                     {reactions.map((reaction, index) => (
