@@ -122,13 +122,13 @@ const MarketResearch = () => {
 
                         <TabPanels>
                             <TabPanel p={0}>
-                                <ResultTable data={reactions.filter(r => r.reaction.includes('긍정적'))} />
+                                <ResultTable data={reactions.filter(r => r.reaction && r.reaction.toLowerCase().includes('긍정'))} />
                             </TabPanel>
                             <TabPanel p={0}>
-                                <ResultTable data={reactions.filter(r => r.reaction.includes('부정적'))} />
+                                <ResultTable data={reactions.filter(r => r.reaction && r.reaction.toLowerCase().includes('부정'))} />
                             </TabPanel>
                             <TabPanel p={0}>
-                                <ResultTable data={reactions.filter(r => !r.reaction.includes('긍정적') && !r.reaction.includes('부정적'))} />
+                                <ResultTable data={reactions.filter(r => r.reaction && !r.reaction.toLowerCase().includes('긍정') && !r.reaction.toLowerCase().includes('부정'))} />
                             </TabPanel>
                         </TabPanels>
                     </Tabs>
