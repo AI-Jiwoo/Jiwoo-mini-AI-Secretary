@@ -1,63 +1,179 @@
-// Header.jsx
-
-import React, { useState } from 'react';
-import { Box, Button, Flex, Image, Input, InputGroup, InputRightElement, Select, Text } from '@chakra-ui/react';
-import { Search2Icon, LockIcon,EditIcon } from '@chakra-ui/icons';
-import SearchBar from './SearchBar'; // SearchBar 컴포넌트 불러오기
-import logo from '../logo/JiwooLogo.png'; // 로고 이미지 불러오기
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Flex, Image, Select, Text, Input, Button } from '@chakra-ui/react';
+import { LockIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons';
+import logo from '../logo/JiwooLogo.png';
+import Sidebar from '../component/SideBar';
 
 const Header = () => {
-  const options = ["유사서비스", "정책", "시장조사"];
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedOption, setSelectedOption] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [isOpen, setIsOpen] = useState(false);
+    const options = [
+        { value: "", label: "선택" },
+        { value: "SimilarService", label: "유사서비스" },
+        { value: "BusinessSupport", label: "정책" },
+        { value: "MarketResearch", label: "시장조사" }
+    ];
 
-  const handleSelectChange = (e) => {
-    setSelectedOption(e.target.value);
-  };
+    const getCurrentDate = () => {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    };
 
-  return (
-    <Flex as="header" bg="blue.800" color="white" p="4" justifyContent="space-between" alignItems="center">
-      {/* 로고와 텍스트 영역 */}
-      <Flex align="center" ml="4"> {/* 로고와 텍스트를 왼쪽으로 띄우기 위해 ml 속성 추가 */}
-        <Image src={logo} alt="JIWOO Logo" boxSize="40px" mr="2" />
-        <Text fontSize="xl" fontWeight="bold">JIWOO</Text>
-      </Flex>
-      
-      {/* 검색 바와 드롭다운 영역 */}
-      <Flex align="center" ml="10"> {/* 검색 바와 드롭다운을 왼쪽으로 이동시키기 위해 ml 속성 추가 */}
-        {/* 드롭다운 */}
-        <Box h="100%">
-          <Select value={selectedOption} onChange={handleSelectChange} bg="white" color="black"  width="200px">
-            {options.map((option, index) => (
-              <option key={index} value={option}>{option}</option>
-            ))}
-          </Select>
-        </Box>
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedOption, setSelectedOption] = useState(options[0].value);
+    const [startDate, setStartDate] = useState(getCurrentDate());
+    const [endDate, setEndDate] = useState(getCurrentDate());
 
-        {/* 검색 바 */}
-        <InputGroup ml="4">
-          <Input placeholder="검색" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} bg="white" color="black" />
-          <InputRightElement pointerEvents="none">
-            <Search2Icon color="gray.300" />
-          </InputRightElement>
-        </InputGroup>
-      </Flex>
+    useEffect(() => {
+        setEndDate(getCurrentDate());
+    }, []);
 
-      {/* 버튼 그룹 */}
-      <Flex className="headerbutton" align="center">
-        <Button colorScheme="teal" mr="4">플랜추가</Button>
-        <Flex mr="4" align="center" cursor="pointer" _hover={{ color: 'teal.500' }}>
-          <LockIcon mr="1" />
-          <Text>로그인</Text>
-        </Flex>
-        <Flex align="center" cursor="pointer" _hover={{ color: 'teal.500' }}>
-          <EditIcon mr="1" />
-          <Text>회원가입</Text>
-        </Flex>
-      </Flex>
-    </Flex>
-    
-  );
+    const handleLogoClick = () => {
+        navigate('/');
+    };
+
+    const handleSearch = () => {
+        if (selectedOption && searchTerm) {
+            navigateToPage(selectedOption, searchTerm);
+        } else {
+            console.log("Please select an option and enter a search term");
+        }
+    };
+
+    const navigateToPage = (page, term) => {
+        console.log(`Attempting to navigate to /${page}`);
+        const businessInfo = {
+            business: term,
+            companyName: '',
+            nationality: '',
+            companySize: '',
+            establishmentYear: '',
+            products: '',
+            marketPosition: ''
+        };
+
+        const searchParams = new URLSearchParams({
+            query: term,
+            startDate: startDate,
+            endDate: endDate
+        }).toString();
+
+        navigate(`/${page}?${searchParams}`, {
+            state: { businessInfo, startDate, endDate }
+        });
+        console.log(`Navigation completed to /${page}`);
+    };
+
+    const handlePageChange = (page, term) => {
+        console.log(`handlePageChange called with page: ${page}, term: ${term}`);
+        if (term) {
+            console.log(`Attempting to navigate to /${page}`);
+            navigateToPage(page, term);
+        }
+        setIsOpen(false);
+    };
+
+    return (
+        <>
+            <Flex bg="blue.800" color="white" p="4" alignItems="center" justifyContent="space-between">
+                <Flex alignItems="center">
+                    <Button onClick={() => setIsOpen(true)} mr="4">
+                        <HamburgerIcon />
+                    </Button>
+                    <Flex
+                        onClick={handleLogoClick}
+                        cursor="pointer"
+                        _hover={{ opacity: 0.8 }}
+                        alignItems="center"
+                        mr="6"
+                    >
+                        <Image src={logo} alt="JIWOO Logo" boxSize="30px" mr="2" />
+                        <Text fontSize="xl" fontWeight="bold">JIWOO</Text>
+                    </Flex>
+
+                    <Flex alignItems="center">
+                        <Flex alignItems="center" mr="4">
+                            <Input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                bg="white"
+                                color="black"
+                                width="150px"
+                            />
+                            <Text mx="2" fontWeight="bold">~</Text>
+                            <Input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                bg="white"
+                                color="black"
+                                width="150px"
+                            />
+                        </Flex>
+                        <Select
+                            value={selectedOption}
+                            onChange={(e) => setSelectedOption(e.target.value)}
+                            bg="white"
+                            color="black"
+                            width="120px"
+                            mr="2"
+                        >
+                            {options.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </Select>
+                        <Input
+                            placeholder="검색"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            bg="white"
+                            color="black"
+                            width="300px"
+                            mr="2"
+                        />
+                        <Button colorScheme="blue" onClick={handleSearch}>
+                            검색
+                        </Button>
+                    </Flex>
+                </Flex>
+
+                <Flex align="center">
+                    <Button colorScheme="teal" size="sm" mr="4">
+                        플랜추가
+                    </Button>
+                    <Flex
+                        mr="4"
+                        align="center"
+                        cursor="pointer"
+                        _hover={{ color: 'teal.200' }}
+                    >
+                        <LockIcon mr="1" />
+                        <Text>로그인</Text>
+                    </Flex>
+                    <Flex
+                        align="center"
+                        cursor="pointer"
+                        _hover={{ color: 'teal.200' }}
+                    >
+                        <EditIcon mr="1" />
+                        <Text>회원가입</Text>
+                    </Flex>
+                </Flex>
+            </Flex>
+            <Sidebar
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                options={options.slice(1)}
+                onPageChange={handlePageChange}
+                searchTerm={searchTerm}
+            />
+        </>
+    );
 };
 
 export default Header;
