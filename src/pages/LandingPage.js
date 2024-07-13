@@ -3,44 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import ReactTypingEffect from 'react-typing-effect';
 import { Button, ChakraProvider, Flex, Box, Text, Image } from '@chakra-ui/react';
 import logo from '../logo/jiwooLanding.png';
-import logo2 from '../logo/JiwooLogo.png'
 import backgroundVideo from '../video/1118545_4k_Form_1280x720.mp4';
 import useIntersectionObserver from '../hooks/useIntersectionObserver';
 import '../LandingPage.css';
 import {EditIcon, LockIcon} from "@chakra-ui/icons";
 import BusinessInfoForm from "../component/BusinessForm";
-import {motion, useAnimation} from 'framer-motion'
+import FallingLogo from "../component/FallingLogo";
 
-const FallingLogo = ({ x, y }) => {
-    const controls = useAnimation();
-
-    useEffect(() => {
-        controls.start({
-            y: window.innerHeight,
-            transition: {
-                duration: 3 + Math.random() * 2, // 3~5초 사이의 랜덤한 시간
-                ease: 'linear'
-            }
-        });
-    }, [controls]);
-
-    return (
-        <motion.img
-            src={logo2}
-            alt="Falling JIWOO logo"
-            style={{
-                position: 'fixed',
-                left: x,
-                top: y,
-                width: '50px',
-                height: 'auto',
-                zIndex: 1000
-            }}
-            initial={{ y: y }}
-            animate={controls}
-        />
-    );
-};
 const AnimatedSection = ({ children, delay = 0, backgroundColor = 'transparent' }) => {
     const ref = useRef(null);
     const entry = useIntersectionObserver(ref, {
@@ -71,10 +40,13 @@ const LandingPage = () => {
     const navigate = useNavigate();
     const [fallingLogos, setFallingLogos] = useState([]);
 
+    const handleRemoveLogo = (id) => {
+        setFallingLogos(prevLogos => prevLogos.filter(logo => logo.id !== id));
+    };
+
     const handleGetStartedClick = () => {
         document.getElementById('business-info-form').scrollIntoView({ behavior: 'smooth' });
     };
-
 
     const handleLogoClick = () => {
         const newLogos = Array.from({ length: 10 }, () => ({
@@ -128,23 +100,25 @@ const LandingPage = () => {
                             Your browser does not support the video tag.
                         </Box>
                         <Flex direction="column" align="center" justify="center" height="100%" position="relative" zIndex="1">
-                            <Image src={logo}
-                                   alt="JIWOO logo"
-                                   className="landing-logo"
-                                   width="90vw"
-                                   maxWidth="900px"
-                                    onClick={() => {
-                                        console.log('Logo clicked');
-                                        handleLogoClick();
-                                    }}
-                                    style={{cursor:'pointer'}}/>
-                            <Box mt="-20px">
-                            <ReactTypingEffect
-                                text={['지혜로운 도우미 JIWOO를 경험해보세요!']}
-                                speed={100}
-                                eraseDelay={1000000}
-                                className="landing-typing-effect"
+                            <Image
+                                src={logo}
+                                alt="JIWOO logo"
+                                className="landing-logo"
+                                width="90vw"
+                                maxWidth="900px"
+                                onClick={() => {
+                                    console.log('Logo clicked');
+                                    handleLogoClick();
+                                }}
+                                style={{cursor:'pointer'}}
                             />
+                            <Box mt="-20px">
+                                <ReactTypingEffect
+                                    text={['지혜로운 도우미 JIWOO를 경험해보세요!']}
+                                    speed={100}
+                                    eraseDelay={1000000}
+                                    className="landing-typing-effect"
+                                />
                             </Box>
                             <Button
                                 colorScheme="teal"
@@ -164,9 +138,6 @@ const LandingPage = () => {
                             창업을 원한다면 <br/>
                             관련 키워드를 검색해보세요!
                         </Text>
-                        {/*<Text fontSize={["xl", "2xl", "3xl", "4xl"]} mb={6} color="gray.700" textAlign="center">*/}
-                        {/*    관련 키워드를 검색해보세요!*/}
-                        {/*</Text>*/}
                         <Text fontSize={["lg", "xl", "2xl", "3xl"]} color="gray.600" textAlign="center" maxWidth="800px" mb={10}>
                             3가지 데이터 분석을 통해 <br/>
                             원하는 분야의 창업에 대한 정보를 모으세요
@@ -178,14 +149,22 @@ const LandingPage = () => {
                         </Flex>
                     </Flex>
                 </AnimatedSection>
+
                 <AnimatedSection delay={200} backgroundColor="#63B3ED">
                     <Box id="business-info-form">
                         <BusinessInfoForm />
                     </Box>
                 </AnimatedSection>
+
                 {fallingLogos.map(logo => (
-                    <FallingLogo key={logo.id} x={logo.x} y={logo.y} />
+                    <FallingLogo
+                        key={logo.id}
+                        x={logo.x}
+                        y={logo.y}
+                        onRemove={() => handleRemoveLogo(logo.id)}  // onRemove prop 추가
+                    />
                 ))}
+
             </Box>
         </ChakraProvider>
     );
@@ -193,4 +172,3 @@ const LandingPage = () => {
 
 export default LandingPage;
 
-       

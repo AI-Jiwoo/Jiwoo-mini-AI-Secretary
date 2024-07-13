@@ -3,9 +3,9 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Flex, Box, Text, VStack, Tabs, TabList, TabPanels, Tab, TabPanel, Input, Button } from '@chakra-ui/react';
 import PageLayout from '../component/common/PageLayout';
-import DateRangePicker from '../component/common/DateRangePicker';
 import NewsContent from '../component/common/NewsContent';
 import ResultTable from '../component/common/ResultTable';
+import Overlay from "../component/common/Overlay";
 
 const getTodayString = () => {
     const today = new Date();
@@ -27,6 +27,8 @@ const MarketResearch = () => {
     const [newsArticles, setNewsArticles] = useState([]);
     const [reactions, setReactions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
 
     useEffect(() => {
         if (keyword) {
@@ -86,12 +88,8 @@ const MarketResearch = () => {
 
     return (
         <PageLayout>
-            <DateRangePicker
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={(e) => setStartDate(e.target.value)}
-                onEndDateChange={(e) => setEndDate(e.target.value)}
-            />
+            {isLoading && <Overlay />}
+            {error && <Text color="red.500">{error}</Text>}
 
             <Flex gap={6}>
                 {/* 왼쪽: 미디어 데이터 */}
@@ -122,13 +120,13 @@ const MarketResearch = () => {
 
                         <TabPanels>
                             <TabPanel p={0}>
-                                <ResultTable data={reactions.filter(r => r.reaction.includes('긍정적'))} />
+                                <ResultTable data={reactions.filter(r => r.reaction && r.reaction.toLowerCase().includes('긍정'))} />
                             </TabPanel>
                             <TabPanel p={0}>
-                                <ResultTable data={reactions.filter(r => r.reaction.includes('부정적'))} />
+                                <ResultTable data={reactions.filter(r => r.reaction && r.reaction.toLowerCase().includes('부정'))} />
                             </TabPanel>
                             <TabPanel p={0}>
-                                <ResultTable data={reactions.filter(r => !r.reaction.includes('긍정적') && !r.reaction.includes('부정적'))} />
+                                <ResultTable data={reactions.filter(r => r.reaction && !r.reaction.toLowerCase().includes('긍정') && !r.reaction.toLowerCase().includes('부정'))} />
                             </TabPanel>
                         </TabPanels>
                     </Tabs>

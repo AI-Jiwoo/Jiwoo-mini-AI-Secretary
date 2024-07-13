@@ -6,6 +6,7 @@ import Header from '../src/component/Header';
 import LandingPage from "./pages/LandingPage";
 import BusinessSupportPage from "./pages/BusinessSupportPage";
 import MarketResearch from "./pages/MarketResearch";
+import Footer from './component/Footer';
 
 function App() {
 
@@ -13,23 +14,31 @@ function App() {
         <ChakraProvider>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/" element={
+                        <>
+                            <LandingPage />
+                            <Footer />
+                        </>
+                    } />
                     <Route path="SimilarService" element={
                         <>
                             <Header />
                             <SimilarServicePage />
+                            <Footer />
                         </>
                     } />
                     <Route path="BusinessSupport" element={
                         <>
                             <Header />
                             <BusinessSupportPage />
+                            <Footer />
                         </>
                     } />
                     <Route path="MarketResearch" element={
                         <>
                             <Header />
                             <MarketResearch />
+                            <Footer />
                         </>
                     } />
                 </Routes>

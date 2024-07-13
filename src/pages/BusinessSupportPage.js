@@ -18,12 +18,11 @@ import {
     Th,
     Td,
     Link,
-    Spinner,
     Button,
     Input
 } from '@chakra-ui/react';
 import PageLayout from '../component/common/PageLayout';
-import DateRangePicker from '../component/common/DateRangePicker'; // 예시에서는 외부 DateRangePicker 사용 가정
+import Overlay from "../component/common/Overlay";
 
 const getTodayString = () => {
     const today = new Date();
@@ -90,6 +89,7 @@ const BusinessSupportPage = () => {
             return null;
         }
     };
+
     const handleSearch = () => {
         if (searchQuery) {
             fetchPolicyData(searchQuery);
@@ -100,30 +100,15 @@ const BusinessSupportPage = () => {
 
     return (
         <PageLayout>
+            {isLoading && <Overlay />}
             <VStack spacing={6} align="stretch">
-                <Flex justify="space-between" align="center">
-                    <DateRangePicker
-                        startDate={startDate}
-                        endDate={endDate}
-                        onStartDateChange={(e) => setStartDate(e.target.value)}
-                        onEndDateChange={(e) => setEndDate(e.target.value)}
-                    />
-                    <Button colorScheme="blue" onClick={handleSearch}>
-                        검색
-                    </Button>
-                </Flex>
-
                 {searchQuery && (
                     <Box>
                         <Text fontSize="lg" fontWeight="bold">검색어: "{searchQuery}"</Text>
                     </Box>
                 )}
 
-                {isLoading ? (
-                    <Flex justify="center" align="center" height="200px">
-                        <Spinner size="xl" />
-                    </Flex>
-                ) : error ? (
+                {error ? (
                     <Box bg="red.100" color="red.500" p={4} borderRadius="md">
                         <Text>{error}</Text>
                     </Box>
@@ -157,7 +142,6 @@ const BusinessSupportPage = () => {
                                                         <Td>{policy.similarity.toFixed(2)}%</Td>
                                                     </Tr>
                                                 ))}
-
                                             </Tbody>
                                         </Table>
                                     </Box>
@@ -197,8 +181,6 @@ const BusinessSupportPage = () => {
                                 </TabPanels>
                             </Tabs>
                         </Box>
-
-
                     </>
                 ) : (
                     <Box bg="gray.100" p={4} borderRadius="md">

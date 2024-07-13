@@ -19,4 +19,4 @@ const Overlay = () => {
     );
 };
 
-export default Overlay;
+export default Overlay
