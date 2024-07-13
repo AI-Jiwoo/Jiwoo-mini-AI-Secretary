@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Flex, Box, Text, VStack, Tabs, TabList, TabPanels, Tab, TabPanel, Input, Button } from '@chakra-ui/react';
 import PageLayout from '../component/common/PageLayout';
-import DateRangePicker from '../component/common/DateRangePicker';
 import NewsContent from '../component/common/NewsContent';
 import ResultTable from '../component/common/ResultTable';
 
@@ -86,12 +85,6 @@ const MarketResearch = () => {
 
     return (
         <PageLayout>
-            <DateRangePicker
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={(e) => setStartDate(e.target.value)}
-                onEndDateChange={(e) => setEndDate(e.target.value)}
-            />
 
             <Flex gap={6}>
                 {/* 왼쪽: 미디어 데이터 */}

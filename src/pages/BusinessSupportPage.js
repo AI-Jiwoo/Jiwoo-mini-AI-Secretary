@@ -101,17 +101,6 @@ const BusinessSupportPage = () => {
     return (
         <PageLayout>
             <VStack spacing={6} align="stretch">
-                <Flex justify="space-between" align="center">
-                    <DateRangePicker
-                        startDate={startDate}
-                        endDate={endDate}
-                        onStartDateChange={(e) => setStartDate(e.target.value)}
-                        onEndDateChange={(e) => setEndDate(e.target.value)}
-                    />
-                    <Button colorScheme="blue" onClick={handleSearch}>
-                        검색
-                    </Button>
-                </Flex>
 
                 {searchQuery && (
                     <Box>

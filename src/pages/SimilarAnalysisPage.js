@@ -58,13 +58,6 @@ const SimilarServicePage = () => {
 
     return (
         <PageLayout>
-            <DateRangePicker
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={(e) => setStartDate(e.target.value)}
-                onEndDateChange={(e) => setEndDate(e.target.value)}
-            />
-
             {isLoading && <Spinner />}
             {error && <Text color="red.500">{error}</Text>}
 
