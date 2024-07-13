@@ -5,6 +5,7 @@ import { Flex, Box, Text, VStack, Tabs, TabList, TabPanels, Tab, TabPanel, Input
 import PageLayout from '../component/common/PageLayout';
 import NewsContent from '../component/common/NewsContent';
 import ResultTable from '../component/common/ResultTable';
+import Overlay from "../component/common/Overlay";
 
 const getTodayString = () => {
     const today = new Date();
@@ -26,6 +27,8 @@ const MarketResearch = () => {
     const [newsArticles, setNewsArticles] = useState([]);
     const [reactions, setReactions] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
 
     useEffect(() => {
         if (keyword) {
@@ -85,6 +88,8 @@ const MarketResearch = () => {
 
     return (
         <PageLayout>
+            {isLoading && <Overlay />}
+            {error && <Text color="red.500">{error}</Text>}
 
             <Flex gap={6}>
                 {/* 왼쪽: 미디어 데이터 */}

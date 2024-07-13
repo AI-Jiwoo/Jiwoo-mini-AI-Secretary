@@ -3,9 +3,8 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {Box, Flex, Text, VStack, Spinner, Button} from '@chakra-ui/react';
 import PageLayout from '../component/common/PageLayout';
-import DateRangePicker from '../component/common/DateRangePicker';
-import CompanyResultItem from '../component/common/CompanyResult';
 import CompanyDetailCard from "../component/CompanyDetailCard";
+import Overlay from "../component/common/Overlay";
 
 
 const getTodayString = () => {
@@ -58,7 +57,7 @@ const SimilarServicePage = () => {
 
     return (
         <PageLayout>
-            {isLoading && <Spinner />}
+            {isLoading && <Overlay />}
             {error && <Text color="red.500">{error}</Text>}
 
             <Flex gap={6}>
