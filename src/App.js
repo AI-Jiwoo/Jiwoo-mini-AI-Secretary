@@ -13,26 +13,31 @@ function App() {
         <ChakraProvider>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/" element={
+                        <>
+                            <LandingPage />
+                            <Footer />
+                        </>
+                    } />
                     <Route path="SimilarService" element={
                         <>
                             <Header />
                             <SimilarServicePage />
-                            <Footer /> {/* Footer 추가 */}
+                            <Footer />
                         </>
                     } />
                     <Route path="BusinessSupport" element={
                         <>
                             <Header />
                             <BusinessSupportPage />
-                            <Footer /> {/* Footer 추가 */}
+                            <Footer />
                         </>
                     } />
                     <Route path="MarketResearch" element={
                         <>
                             <Header />
                             <MarketResearch />
-                            <Footer /> {/* Footer 추가 */}
+                            <Footer />
                         </>
                     } />
                 </Routes>
