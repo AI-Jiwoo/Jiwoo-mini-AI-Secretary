@@ -10,16 +10,20 @@ import {
     TabList,
     TabPanels,
     Tab,
-    TabPanel
+    TabPanel,
+    Table,
+    Thead,
+    Tbody,
+    Tr,
+    Th,
+    Td,
+    Link,
+    Spinner,
+    Button,
+    Input
 } from '@chakra-ui/react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
 import PageLayout from '../component/common/PageLayout';
-import DateRangePicker from '../component/common/DateRangePicker';
-import PolicyTable from '../component/common/PolicyTable';
-import Overlay from '../component/common/Overlay';
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import DateRangePicker from '../component/common/DateRangePicker'; // 예시에서는 외부 DateRangePicker 사용 가정
 
 const getTodayString = () => {
     const today = new Date();
@@ -33,86 +37,81 @@ const BusinessSupportPage = () => {
     const [startDate, setStartDate] = useState(getTodayString());
     const [endDate, setEndDate] = useState(getTodayString());
     const [searchQuery, setSearchQuery] = useState('');
-    const [isLoadingPolicy, setIsLoadingPolicy] = useState(true);
-    const [isLoadingPublic, setIsLoadingPublic] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [policyData, setPolicyData] = useState([]);
-    const [publicData, setPublicData] = useState([]);
-    const [activeTab, setActiveTab] = useState(0);
+    const [error, setError] = useState(null);
+    const [investmentData, setInvestmentData] = useState(null);
     const location = useLocation();
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const query = params.get('query');
-        if (query) {
+        if (query !== searchQuery) {
             setSearchQuery(query);
             fetchPolicyData(query);
         }
-    }, [location]);
+    }, [location, searchQuery]);
 
     const fetchPolicyData = async (query) => {
-        setIsLoadingPolicy(true);
+        setIsLoading(true);
+        setError(null);
         try {
-            const response = await axios.get('http://127.0.0.1:8000/business', {
-                params: {
-                    query: query
-                }
+            const policyResponse = await axios.get('http://localhost:8000/kstartup_research/business', {
+                params: { query }
             });
-            console.log('Received data:', response.data);
-            setPolicyData(response.data);
+            console.log('Received policy data:', policyResponse.data);
+            setPolicyData(policyResponse.data);
+
+            // 투자자금 데이터 요청
+            const businessType = query === 'IT' ? 'IT' : '유통/서비스';
+            const startYear = startDate.split('-')[0];
+            const endYear = endDate.split('-')[0];
+            const investmentResponse = await fetchInvestmentData(businessType, startYear, endYear);
+            console.log('Received investment data:', investmentResponse);
+            setInvestmentData(investmentResponse);
         } catch (error) {
-            console.error('정책 데이터 불러오기 실패:', error);
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-            }
+            console.error('데이터 불러오기 실패:', error);
+            setError('데이터를 불러오는 데 실패했습니다. 다시 시도해 주세요.');
         } finally {
-            setIsLoadingPolicy(false);
+            setIsLoading(false);
         }
     };
 
-    const handleTabChange = (index) => {
-        setActiveTab(index);
-        if (index === 1 && !publicData.length) {
-            setIsLoadingPublic(true);
-            fetchPublicData(searchQuery);
+    const fetchInvestmentData = async (businessType, startYear, endYear) => {
+        try {
+            const response = await axios.post('http://localhost:8000/investment_possibility/get-investment-data', {
+                business_type: businessType,
+                start_year: parseInt(startYear),
+                end_year: parseInt(endYear)
+            });
+            return response.data;
+        } catch (error) {
+            console.error('투자자금 데이터 불러오기 실패:', error);
+            return null;
         }
     };
-
-    const fetchPublicData = (query) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                setPublicData([
-                    { policy: "공공 데이터 1", result: "긍정", count: 300 },
-                    { policy: "공공 데이터 2", result: "부정", count: 150 },
-                    { policy: "공공 데이터 3", result: "기타", count: 80 },
-                ]);
-                setIsLoadingPublic(false);
-                resolve();
-            }, 2500);
-        }).catch((error) => {
-            console.error('공공 데이터 불러오기 실패:', error);
-            setIsLoadingPublic(false);
-        });
-    };
-
-    const pieChartData = {
-        labels: ['긍정', '부정', '기타'],
-        datasets: [
-            {
-                data: [83.6, 11.4, 5],
-                backgroundColor: ['#3182CE', '#E53E3E', '#ECC94B'],
-            },
-        ],
+    const handleSearch = () => {
+        if (searchQuery) {
+            fetchPolicyData(searchQuery);
+        } else {
+            setError('검색어를 입력해주세요.');
+        }
     };
 
     return (
         <PageLayout>
             <VStack spacing={6} align="stretch">
-                <DateRangePicker
-                    startDate={startDate}
-                    endDate={endDate}
-                    onStartDateChange={(e) => setStartDate(e.target.value)}
-                    onEndDateChange={(e) => setEndDate(e.target.value)}
-                />
+                <Flex justify="space-between" align="center">
+                    <DateRangePicker
+                        startDate={startDate}
+                        endDate={endDate}
+                        onStartDateChange={(e) => setStartDate(e.target.value)}
+                        onEndDateChange={(e) => setEndDate(e.target.value)}
+                    />
+                    <Button colorScheme="blue" onClick={handleSearch}>
+                        검색
+                    </Button>
+                </Flex>
 
                 {searchQuery && (
                     <Box>
@@ -120,80 +119,92 @@ const BusinessSupportPage = () => {
                     </Box>
                 )}
 
-                <Flex gap={6}>
-                    <Box width="50%" bg="white" borderRadius="lg" p={6} boxShadow="md">
-                        <Tabs index={activeTab} onChange={handleTabChange}>
+                {isLoading ? (
+                    <Flex justify="center" align="center" height="200px">
+                        <Spinner size="xl" />
+                    </Flex>
+                ) : error ? (
+                    <Box bg="red.100" color="red.500" p={4} borderRadius="md">
+                        <Text>{error}</Text>
+                    </Box>
+                ) : policyData.length > 0 ? (
+                    <>
+                        <Tabs>
                             <TabList>
-                                <Tab>정책 데이터</Tab>
-                                <Tab>공공 데이터</Tab>
+                                <Tab>정책 데이터 분석 결과</Tab>
+                                <Tab>투자자금 결과</Tab>
                             </TabList>
                             <TabPanels>
                                 <TabPanel>
-                                    {isLoadingPolicy ? (
-                                        <Overlay />
-                                    ) : (
-                                        <>
-                                            <Text fontSize="xl" fontWeight="bold" mb={4}>[정책 데이터] 공공 데이터 및 K-Startup 분석 결과</Text>
-                                            {policyData.map((article, index) => (
-                                                <Box key={index} mb={4}>
-                                                    <Text fontWeight="bold">{article.title}</Text>
-                                                    <Text>{article.text.substring(0, 200)}...</Text>
-                                                    <Text as="a" color="blue.500" href={article.url} target="_blank" rel="noopener noreferrer">
-                                                        원문 보기
-                                                    </Text>
-                                                </Box>
-                                            ))}
-                                        </>
-                                    )}
+                                    <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
+                                        <Table variant="simple">
+                                            <Thead>
+                                                <Tr>
+                                                    <Th>순위</Th>
+                                                    <Th>제목</Th>
+                                                    <Th>유사도</Th>
+                                                </Tr>
+                                            </Thead>
+                                            <Tbody>
+                                                {policyData.map((policy, index) => (
+                                                    <Tr key={index}>
+                                                        <Td>{index + 1}</Td>
+                                                        <Td>
+                                                            <Link href={policy.url} isExternal color="blue.500">
+                                                                {policy.title}
+                                                            </Link>
+                                                        </Td>
+                                                        <Td>{policy.similarity.toFixed(2)}%</Td>
+                                                    </Tr>
+                                                ))}
+
+                                            </Tbody>
+                                        </Table>
+                                    </Box>
                                 </TabPanel>
                                 <TabPanel>
-                                    {isLoadingPublic && <Overlay />}
-                                    <Text fontSize="xl" fontWeight="bold" mb={4}>[공공 데이터] 공공 데이터 및 K-Startup 분석 결과</Text>
-                                    <Text fontWeight="bold" mb={2}>정책명: 르르르</Text>
-                                    <Text fontSize="sm" color="gray.500">미디어데이터 24년07월10일 갱신</Text>
-                                    <Text mt={2}>정책 내용 어쩌구 머쩌구 설명...</Text>
+                                    {investmentData ? (
+                                        <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
+                                            <Text fontSize="xl" fontWeight="bold" mb={4}>투자자금 결과</Text>
+                                            <Text>{investmentData.evaluation}</Text>
+                                        </Box>
+                                    ) : (
+                                        <Box bg="gray.100" p={4} borderRadius="md">
+                                            <Text>투자자금 데이터를 불러오는 중입니다...</Text>
+                                        </Box>
+                                    )}
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
-                    </Box>
 
-                    <Box width="50%" bg="white" borderRadius="lg" p={6} boxShadow="md">
-                        <Text fontSize="xl" fontWeight="bold" mb={4}>[긍부정 비율]</Text>
-                        <Box height="300px">
-                            <Pie data={pieChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+                        <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
+                            <Text fontSize="xl" fontWeight="bold" mb={4}>정책 상세 정보</Text>
+                            <Tabs>
+                                <TabList>
+                                    {policyData.map((policy, index) => (
+                                        <Tab key={index}>{index + 1}위</Tab>
+                                    ))}
+                                </TabList>
+                                <TabPanels>
+                                    {policyData.map((policy, index) => (
+                                        <TabPanel key={index}>
+                                            <Text fontWeight="bold">{policy.title}</Text>
+                                            <Text mt={2}>{policy.content}</Text>
+                                            <Text mt={2} fontWeight="bold">예상 이익:</Text>
+                                            <Text>{policy.gpt_response}</Text>
+                                        </TabPanel>
+                                    ))}
+                                </TabPanels>
+                            </Tabs>
                         </Box>
+
+
+                    </>
+                ) : (
+                    <Box bg="gray.100" p={4} borderRadius="md">
+                        <Text>검색 결과가 없습니다.</Text>
                     </Box>
-                </Flex>
-
-                <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
-                    <Tabs>
-                        <TabList mb={4}>
-                            <Tab>긍정</Tab>
-                            <Tab>부정</Tab>
-                            <Tab>etc</Tab>
-                        </TabList>
-
-                        <TabPanels>
-                            <TabPanel p={0}>
-                                <PolicyTable data={policyData.filter(item => item.result === '긍정')} />
-                            </TabPanel>
-                            <TabPanel p={0}>
-                                <PolicyTable data={policyData.filter(item => item.result === '부정')} />
-                            </TabPanel>
-                            <TabPanel p={0}>
-                                <PolicyTable data={policyData.filter(item => item.result !== '긍정' && item.result !== '부정')} />
-                            </TabPanel>
-                        </TabPanels>
-                    </Tabs>
-                </Box>
-
-                <Box bg="white" borderRadius="lg" p={6} boxShadow="md">
-                    <Text fontSize="xl" fontWeight="bold" mb={4}>[분석 결과 요약]</Text>
-                    <Text>
-                        여기에 분석 결과 요약 내용이 들어갑니다. 예를 들어, 전체적인 정책 동향,
-                        주요 긍정/부정 요인, 향후 전망 등을 포함할 수 있습니다.
-                    </Text>
-                </Box>
+                )}
             </VStack>
         </PageLayout>
     );
