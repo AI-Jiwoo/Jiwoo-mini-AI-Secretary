@@ -18,10 +18,7 @@ const Header = () => {
 
     const getCurrentDate = () => {
         const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return today.toISOString().split('T')[0];
     };
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -39,31 +36,41 @@ const Header = () => {
 
     const handleSearch = () => {
         if (selectedOption && searchTerm) {
-            const businessInfo = {
-                business: searchTerm,
-                companyName: '',
-                nationality: '',
-                companySize: '',
-                establishmentYear: '',
-                products: '',
-                marketPosition: ''
-            };
-
-            navigate(`/${selectedOption}`, {
-                state: { businessInfo, startDate, endDate },
-                search: `?query=${encodeURIComponent(searchTerm)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
-            });
+            navigateToPage(selectedOption, searchTerm);
         } else {
             console.log("Please select an option and enter a search term");
         }
     };
 
+    const navigateToPage = (page, term) => {
+        console.log(`Attempting to navigate to /${page}`);
+        const businessInfo = {
+            business: term,
+            companyName: '',
+            nationality: '',
+            companySize: '',
+            establishmentYear: '',
+            products: '',
+            marketPosition: ''
+        };
+
+        const searchParams = new URLSearchParams({
+            query: term,
+            startDate: startDate,
+            endDate: endDate
+        }).toString();
+
+        navigate(`/${page}?${searchParams}`, {
+            state: { businessInfo, startDate, endDate }
+        });
+        console.log(`Navigation completed to /${page}`);
+    };
+
     const handlePageChange = (page, term) => {
+        console.log(`handlePageChange called with page: ${page}, term: ${term}`);
         if (term) {
-            navigate(`/${page}`, {
-                state: { businessInfo: { business: term }, startDate, endDate },
-                search: `?query=${encodeURIComponent(term)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
-            });
+            console.log(`Attempting to navigate to /${page}`);
+            navigateToPage(page, term);
         }
         setIsOpen(false);
     };
