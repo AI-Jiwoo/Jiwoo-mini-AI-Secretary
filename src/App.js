@@ -9,6 +9,7 @@ import MarketResearch from "./pages/MarketResearch";
 import Footer from './component/Footer';
 
 function App() {
+
     return (
         <ChakraProvider>
             <BrowserRouter>
