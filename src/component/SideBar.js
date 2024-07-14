@@ -32,4 +32,4 @@ const Sidebar = ({ isOpen, onClose, options, onPageChange, searchTerm }) => {
     );
 };
 
-export default Sidebar;
+export default Sidebar

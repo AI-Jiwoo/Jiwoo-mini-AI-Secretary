@@ -34,14 +34,6 @@ const Header = () => {
         navigate('/');
     };
 
-    const handleSearch = () => {
-        if (selectedOption && searchTerm) {
-            navigateToPage(selectedOption, searchTerm);
-        } else {
-            console.log("Please select an option and enter a search term");
-        }
-    };
-
     const navigateToPage = (page, term) => {
         console.log(`Attempting to navigate to /${page}`);
         const businessInfo = {
@@ -66,11 +58,18 @@ const Header = () => {
         console.log(`Navigation completed to /${page}`);
     };
 
-    const handlePageChange = (page, term) => {
-        console.log(`handlePageChange called with page: ${page}, term: ${term}`);
-        if (term) {
-            console.log(`Attempting to navigate to /${page}`);
-            navigateToPage(page, term);
+    const handleHeaderSearch = () => {
+        if (selectedOption && searchTerm) {
+            navigateToPage(selectedOption, searchTerm);
+        } else {
+            console.log("Please select an option and enter a search term");
+        }
+    };
+
+    const handleSidebarPageChange = (page, term) => {
+        console.log(`Sidebar changing to page: ${page}, with term: ${term}`);
+        if (page) {
+            navigateToPage(page, term || searchTerm);
         }
         setIsOpen(false);
     };
@@ -136,7 +135,7 @@ const Header = () => {
                             width="300px"
                             mr="2"
                         />
-                        <Button colorScheme="blue" onClick={handleSearch}>
+                        <Button colorScheme="blue" onClick={handleHeaderSearch}>
                             검색
                         </Button>
                     </Flex>
@@ -169,7 +168,7 @@ const Header = () => {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 options={options.slice(1)}
-                onPageChange={handlePageChange}
+                onPageChange={handleSidebarPageChange}
                 searchTerm={searchTerm}
             />
         </>
