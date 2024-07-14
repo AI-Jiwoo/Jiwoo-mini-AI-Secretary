@@ -4,7 +4,7 @@ import {
     VStack, Button
 } from '@chakra-ui/react';
 
-const Sidebar = ({ isOpen, onClose, options, onPageChange, searchTerm }) => {
+const Sidebar = ({ isOpen, onClose, options, onPageChange, searchTerm, businessInfo }) => {
     return (
         <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
             <DrawerOverlay />
@@ -17,8 +17,8 @@ const Sidebar = ({ isOpen, onClose, options, onPageChange, searchTerm }) => {
                             <Button
                                 key={option.value}
                                 onClick={() => {
-                                    console.log(`Sidebar button clicked: ${option.value}, searchTerm: ${searchTerm}`);
-                                    onPageChange(option.value, searchTerm);
+                                    console.log(`Sidebar button clicked: ${option.value}, searchTerm: ${searchTerm}, businessInfo: ${JSON.stringify(businessInfo)}`);
+                                    onPageChange(option.value, businessInfo?.business || searchTerm);
                                 }}
                                 variant="ghost"
                             >
@@ -32,4 +32,4 @@ const Sidebar = ({ isOpen, onClose, options, onPageChange, searchTerm }) => {
     );
 };
 
-export default Sidebar
+export default Sidebar;

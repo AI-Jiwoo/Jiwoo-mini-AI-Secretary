@@ -25,10 +25,26 @@ const Header = () => {
     const [selectedOption, setSelectedOption] = useState(options[0].value);
     const [startDate, setStartDate] = useState(getCurrentDate());
     const [endDate, setEndDate] = useState(getCurrentDate());
+    const [businessInfo, setBusinessInfo] = useState(null);
 
     useEffect(() => {
         setEndDate(getCurrentDate());
-    }, []);
+
+        // URL에서 query 파라미터를 가져옵니다.
+        const searchParams = new URLSearchParams(location.search);
+        const query = searchParams.get('query');
+
+        // location.state에서 businessInfo를 가져옵니다.
+        const stateBusinessInfo = location.state?.businessInfo;
+
+        if (stateBusinessInfo) {
+            setBusinessInfo(stateBusinessInfo);
+            setSearchTerm(stateBusinessInfo.business || '');
+        } else if (query) {
+            setBusinessInfo({ business: query });
+            setSearchTerm(query);
+        }
+    }, [location]);
 
     const handleLogoClick = () => {
         navigate('/');
@@ -36,14 +52,9 @@ const Header = () => {
 
     const navigateToPage = (page, term) => {
         console.log(`Attempting to navigate to /${page}`);
-        const businessInfo = {
+        const updatedBusinessInfo = {
+            ...(businessInfo || {}),
             business: term,
-            companyName: '',
-            nationality: '',
-            companySize: '',
-            establishmentYear: '',
-            products: '',
-            marketPosition: ''
         };
 
         const searchParams = new URLSearchParams({
@@ -53,7 +64,7 @@ const Header = () => {
         }).toString();
 
         navigate(`/${page}?${searchParams}`, {
-            state: { businessInfo, startDate, endDate }
+            state: { businessInfo: updatedBusinessInfo, startDate, endDate }
         });
         console.log(`Navigation completed to /${page}`);
     };
@@ -69,7 +80,7 @@ const Header = () => {
     const handleSidebarPageChange = (page, term) => {
         console.log(`Sidebar changing to page: ${page}, with term: ${term}`);
         if (page) {
-            navigateToPage(page, term || searchTerm);
+            navigateToPage(page, term || businessInfo?.business || searchTerm);
         }
         setIsOpen(false);
     };
@@ -170,6 +181,7 @@ const Header = () => {
                 options={options.slice(1)}
                 onPageChange={handleSidebarPageChange}
                 searchTerm={searchTerm}
+                businessInfo={businessInfo}
             />
         </>
     );
