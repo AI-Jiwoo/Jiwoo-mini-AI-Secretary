@@ -86,20 +86,8 @@ const SimilarServicePage = () => {
                     {selectedCompany && (
                         <>
                             <CompanyDetailCard
-                                title="장점"
+                                title="기업 분석 정보"
                                 content={selectedCompany.advantages || selectedCompany.suggestions}
-                                isSearched={true}
-                                companyName={selectedCompany.company}
-                            />
-                            <CompanyDetailCard
-                                title="약점"
-                                content={selectedCompany.disadvantages || "정보가 없습니다."}
-                                isSearched={true}
-                                companyName={selectedCompany.company}
-                            />
-                            <CompanyDetailCard
-                                title="개선점"
-                                content={selectedCompany.suggestions || "정보가 없습니다."}
                                 isSearched={true}
                                 companyName={selectedCompany.company}
                             />

@@ -25,33 +25,36 @@ const Header = () => {
     const [selectedOption, setSelectedOption] = useState(options[0].value);
     const [startDate, setStartDate] = useState(getCurrentDate());
     const [endDate, setEndDate] = useState(getCurrentDate());
+    const [businessInfo, setBusinessInfo] = useState(null);
 
     useEffect(() => {
         setEndDate(getCurrentDate());
-    }, []);
+
+        // URL에서 query 파라미터를 가져옵니다.
+        const searchParams = new URLSearchParams(location.search);
+        const query = searchParams.get('query');
+
+        // location.state에서 businessInfo를 가져옵니다.
+        const stateBusinessInfo = location.state?.businessInfo;
+
+        if (stateBusinessInfo) {
+            setBusinessInfo(stateBusinessInfo);
+            setSearchTerm(stateBusinessInfo.business || '');
+        } else if (query) {
+            setBusinessInfo({ business: query });
+            setSearchTerm(query);
+        }
+    }, [location]);
 
     const handleLogoClick = () => {
         navigate('/');
     };
 
-    const handleSearch = () => {
-        if (selectedOption && searchTerm) {
-            navigateToPage(selectedOption, searchTerm);
-        } else {
-            console.log("Please select an option and enter a search term");
-        }
-    };
-
     const navigateToPage = (page, term) => {
         console.log(`Attempting to navigate to /${page}`);
-        const businessInfo = {
+        const updatedBusinessInfo = {
+            ...(businessInfo || {}),
             business: term,
-            companyName: '',
-            nationality: '',
-            companySize: '',
-            establishmentYear: '',
-            products: '',
-            marketPosition: ''
         };
 
         const searchParams = new URLSearchParams({
@@ -61,16 +64,23 @@ const Header = () => {
         }).toString();
 
         navigate(`/${page}?${searchParams}`, {
-            state: { businessInfo, startDate, endDate }
+            state: { businessInfo: updatedBusinessInfo, startDate, endDate }
         });
         console.log(`Navigation completed to /${page}`);
     };
 
-    const handlePageChange = (page, term) => {
-        console.log(`handlePageChange called with page: ${page}, term: ${term}`);
-        if (term) {
-            console.log(`Attempting to navigate to /${page}`);
-            navigateToPage(page, term);
+    const handleHeaderSearch = () => {
+        if (selectedOption && searchTerm) {
+            navigateToPage(selectedOption, searchTerm);
+        } else {
+            console.log("Please select an option and enter a search term");
+        }
+    };
+
+    const handleSidebarPageChange = (page, term) => {
+        console.log(`Sidebar changing to page: ${page}, with term: ${term}`);
+        if (page) {
+            navigateToPage(page, term || businessInfo?.business || searchTerm);
         }
         setIsOpen(false);
     };
@@ -136,7 +146,7 @@ const Header = () => {
                             width="300px"
                             mr="2"
                         />
-                        <Button colorScheme="blue" onClick={handleSearch}>
+                        <Button colorScheme="blue" onClick={handleHeaderSearch}>
                             검색
                         </Button>
                     </Flex>
@@ -169,8 +179,9 @@ const Header = () => {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 options={options.slice(1)}
-                onPageChange={handlePageChange}
+                onPageChange={handleSidebarPageChange}
                 searchTerm={searchTerm}
+                businessInfo={businessInfo}
             />
         </>
     );
