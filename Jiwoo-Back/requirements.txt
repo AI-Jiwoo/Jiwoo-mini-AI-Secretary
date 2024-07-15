@@ -1,0 +1,38 @@
+# ORM을 위한 SQLAlchemy
+SQLAlchemy==2.0.15
+# MariaDB와 MySQL용 데이터베이스 드라이버
+mysqlclient==2.1.1
+# Streamlit 웹 애플리케이션 구현에 필요한 패키지
+streamlit==1.0.0
+# RSS 피드 파싱을 위한 라이브러리
+feedparser==6.0.8
+# 웹 기사 스크랩 및 요약을 위한 라이브러리
+newspaper3k==0.2.8
+# OpenAI GPT 모델을 통한 자연어 생성을 위한 라이브러리
+langchain-openai==0.1.15
+# 환경 변수 관리를 위한 라이브러리
+python-dotenv==0.19.1
+# Hugging Face Transformers 라이브러리 (최신 버전으로 업데이트)
+transformers==4.42.4
+# lxml의 html_clean 모듈을 별도로 설치
+lxml_html_clean==0.1.0
+# Uvicorn 웹 서버
+uvicorn==0.15.0
+# FastAPI 웹 프레임워크
+fastapi==0.73.0
+# Pydantic 모델 검증 및 직렬화
+pydantic==1.10.0
+# SQLAlchemy ORM에서 사용할 pymysql
+pymysql==1.0.2
+# 더 직관적인 형식의 SQLAlchemy ORM 사용을 위한 sqlalchemy-utils
+sqlalchemy-utils==0.37.8
+# HTTP 요청을 위한 라이브러리
+requests==2.26.0
+# JSON 처리를 위한 라이브러리 (Python 기본 라이브러리이므로 설치 불필요)
+# import json
+# 문장 임베딩을 위한 라이브러리
+sentence-transformers==2.2.2
+# 정규표현식을 위한 라이브러리 (Python 기본 라이브러리이므로 설치 불필요)
+# import re
+# LangChain의 ChatOpenAI 모델을 위한 라이브러리
+langchain==0.0.184
