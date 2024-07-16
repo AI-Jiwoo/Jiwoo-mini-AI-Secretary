@@ -85,3 +85,7 @@ AI-Secretary
 └─ README.md
 
 ```
+
+## System Architecture
+
+<img src="https://github.com/AI-X-Jiwoo/AI-Secretary/blob/main/docs/Jiwoo.png">
