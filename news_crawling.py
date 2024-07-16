@@ -50,68 +50,57 @@ def scrape_news(keyword: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to scrape news: {str(e)}")
 
-def extract_company_names(titles):
+def analyze_companies_and_generate_suggestions(articles):
     try:
-        prompt_message = "다음 제목들에서 회사명을 추출해줘:\n\n" + "\n".join(titles) + "\n\n회사명들을 쉼표로 구분하여 반환해줘."
+        articles_text = "\n".join([f"{i+1}. {article['title']}" for i, article in enumerate(articles)])
+        prompt_message = (
+            f"다음은 최근 뉴스 기사 제목 목록입니다:\n\n"
+            f"{articles_text}\n\n"
+            "각 기사 제목에서 회사명을 추출하고, 각 회사의 주요 강점과 약점을 분석하여 개선 방향을 제안해줘. "
+            "결과를 다음과 같은 형식으로 반환해줘:\n"
+            "회사명: <회사명>\n"
+            "강점: <강점>\n"
+            "약점: <약점>\n"
+            "개선 방향: <개선 방향>\n"
+        )
+
         response = client.chat.completions.create(
             model=OPEN_AI_API_MODEL,
-            messages=[{"role": "user", "content": prompt_message}],
-            max_tokens=100
+            messages=[
+                {"role": "system", "content": "너는 창업가나 소규모 사장님들을 위한 컨설턴트야."},
+                {"role": "user", "content": prompt_message}
+            ],
+            max_tokens=1500  # Adjusted token limit to ensure complete response
         )
-        company_names = response.choices[0].message.content.strip().split(',')
-        return [name.strip() for name in company_names]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to extract company names: {str(e)}")
 
-def analyze_companies(articles):
-    try:
-        titles = [article['title'] for article in articles]
-        company_names = extract_company_names(titles)
-        company_analysis = []
-        for company_name in company_names:
-            analysis = {
-                'company': company_name,
-                'advantages': f"{company_name}의 주요 강점 분석",
-                'disadvantages': f"{company_name}의 주요 약점 분석"
-            }
-            company_analysis.append(analysis)
-        return company_analysis
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to analyze companies: {str(e)}")
+        suggestions = response.choices[0].message.content.strip()
+        result = []
 
-def generate_improvement_suggestions(company_analysis):
-    try:
-        suggestions = []
-        for company in company_analysis:
-            prompt_message = (
-                f"다음은 {company['company']} 기업의 분석 내용이다:\n\n"
-                f"강점:\n{company['advantages']}\n\n"
-                f"약점:\n{company['disadvantages']}\n\n"
-                "이 기업의 개선 방향을 제안해줘."
-            )
-            response = client.chat.completions.create(
-                model=OPEN_AI_API_MODEL,
-                messages=[
-                    {"role": "system", "content": "너는 창업가나 소규모 사장님들을 위한 컨설턴트야."},
-                    {"role": "user", "content": prompt_message}
-                ],
-                max_tokens=150
-            )
-            suggestion = response.choices[0].message.content.strip()
-            suggestions.append({
-                'company': company['company'],
-                'suggestions': suggestion
-            })
-        return suggestions
+        # 파싱할 때 줄 바꿈을 기준으로 데이터를 분리
+        suggestion_blocks = suggestions.split("\n\n")
+        for block in suggestion_blocks:
+            company_info = {}
+            lines = block.split("\n")
+            for line in lines:
+                if line.startswith("회사명:"):
+                    company_info['company'] = line.replace("회사명:", "").strip()
+                elif line.startswith("강점:"):
+                    company_info['advantages'] = line.replace("강점:", "").strip()
+                elif line.startswith("약점:"):
+                    company_info['disadvantages'] = line.replace("약점:", "").strip()
+                elif line.startswith("개선 방향:"):
+                    company_info['suggestions'] = line.replace("개선 방향:", "").strip()
+            if company_info:  # 빈 블록은 무시
+                result.append(company_info)
+        return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate improvement suggestions: {str(e)}")
-
+        raise HTTPException(status_code=500, detail=f"Failed to analyze companies and generate suggestions: {str(e)}")
+    
 @news_crawling_router.post("/analyze")
 async def analyze_keyword(request: KeywordRequest):
     try:
         scraped_articles = scrape_news(request.keyword)
-        company_analysis = analyze_companies(scraped_articles)
-        improvement_suggestions = generate_improvement_suggestions(company_analysis)
+        improvement_suggestions = analyze_companies_and_generate_suggestions(scraped_articles)
         return improvement_suggestions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
