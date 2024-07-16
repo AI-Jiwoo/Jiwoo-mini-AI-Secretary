@@ -89,3 +89,14 @@ AI-Secretary
 ## System Architecture
 
 <img src="https://github.com/AI-X-Jiwoo/AI-Secretary/blob/main/docs/Jiwoo.png">
+
+
+## API Specification
+<details>
+
+[API 명세서](https://github.com/AI-X-Jiwoo/AI-Secretary/blob/main/docs/API_명세서.pdf)
+<br>
+
+<img src="https://github.com/AI-X-Jiwoo/AI-Secretary/blob/main/docs/API_명세서_img.png">
+
+</details>
